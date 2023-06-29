@@ -24,6 +24,9 @@
     <ClCompile Include="src\Shader.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="res\stb_image\stb_image.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -35,5 +38,16 @@
     <ClInclude Include="src\Shader.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="res\stb_image\stb_image.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="E:\Program Files (x86)\Chrome\container.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\container.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
 </Project>

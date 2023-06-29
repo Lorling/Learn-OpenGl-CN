@@ -3,23 +3,30 @@
 
 layout(location = 0) in vec2 position;
 layout(location = 1) in vec3 color;
-out vec3 outcolor;
+layout(location = 2) in vec2 texcoord;
+
+out vec3 outColor;
+out vec2 outTexcoord;
 
 void main()
 {
     gl_Position = vec4(position, 0.0f, 1.0f);
-    outcolor = color;
+    outColor = color;
+    outTexcoord = texcoord;
 }
 
 #shader fragment
 #version 330 core
 
 layout(location = 0) out vec4 color;
-in vec3 outcolor;
+in vec3 outColor;
+in vec2 outTexcoord;
 
 uniform vec4 u_color;
+uniform sampler2D u_texture1;
+uniform sampler2D u_terture2;
 
 void main()
 {
-    color = vec4(outcolor,u_color.w);
+    color = mix(texture(u_texture1, outTexcoord), texture(u_terture2, outTexcoord), 0.2f) * vec4(u_color);
 }

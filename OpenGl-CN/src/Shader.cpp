@@ -1,18 +1,31 @@
 #include "Shader.h"
 
-#include "Renderer.h"
-
 #include <fstream>
 #include <sstream>
-#include <string>
+#include <iostream>
 
-struct ShaderProgramSource {
-    std::string VertexSource;
-    std::string FragmentSource;
-};
+Shader::Shader(const std::string& filepath) : Program(0)
+{
+    ShaderProgramSource source = ParseShader(filepath);
+    Program = CreateShader(source.VertexSource, source.FragmentSource);
+}
 
-//将路径所指向的*.shader源码中的多个着色器拆分
-static ShaderProgramSource ParseShader(const std::string& filepath) {
+Shader::~Shader()
+{
+    GLCall(glDeleteProgram(Program));//删除着色器程序
+}
+
+void Shader::Use()
+{
+    GLCall(glUseProgram(Program));
+}
+
+void Shader::Unuse()
+{
+    GLCall(glUseProgram(0));
+}
+
+ShaderProgramSource Shader::ParseShader(const std::string& filepath) {
     std::ifstream stream(filepath);
 
     enum class ShaderType {
@@ -38,8 +51,7 @@ static ShaderProgramSource ParseShader(const std::string& filepath) {
     return { ss[0].str(),ss[1].str() };
 }
 
-//编译shader源码
-static GLuint CompileShader(GLuint type, const std::string& source) {
+GLuint Shader::CompileShader(GLuint type, const std::string& source) {
     GLCall(GLuint id = glCreateShader(type));//创建对应类型的着色器
     const char* src = source.c_str();
     GLCall(glShaderSource(id, 1, &src, nullptr));//设置着色器源码，第一个参数为要编译的着色器对象，第二个参数为源码字符串数量，第三个为源码
@@ -62,8 +74,7 @@ static GLuint CompileShader(GLuint type, const std::string& source) {
     return id;
 }
 
-//创建shader程序
-static GLuint CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
+GLuint Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
     GLCall(GLuint program = glCreateProgram());//创建程序
     GLuint vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
     GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
@@ -79,25 +90,4 @@ static GLuint CreateShader(const std::string& vertexShader, const std::string& f
     GLCall(glDeleteShader(fs));
 
     return program;
-}
-
-Shader::Shader(const std::string& filepath)
-{
-    ShaderProgramSource source = ParseShader(filepath);
-    Program = CreateShader(source.VertexSource, source.FragmentSource);
-}
-
-Shader::~Shader()
-{
-    GLCall(glDeleteProgram(Program));//删除着色器程序
-}
-
-void Shader::Use()
-{
-    GLCall(glUseProgram(Program));
-}
-
-void Shader::Unuse()
-{
-    GLCall(glUseProgram(0));
 }
