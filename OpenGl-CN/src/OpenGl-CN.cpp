@@ -1,6 +1,10 @@
 ﻿#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include "Renderer.h"
 #include "Shader.h"
 #include "../res/stb_image/stb_image.h"
@@ -19,6 +23,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main(void)
 {
+    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
+    // 译注：下面就是矩阵初始化的一个例子，如果使用的是0.9.9及以上版本
+    // 下面这行代码就需要改为:
+    // glm::mat4 trans = glm::mat4(1.0f)
+    // 之后将不再进行提示
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
+    vec = trans * vec;
+    std::cout << vec.x << vec.y << vec.z << std::endl;
     glfwInit();//初始化GLFW
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);//设置主版本
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);//设置次版本
