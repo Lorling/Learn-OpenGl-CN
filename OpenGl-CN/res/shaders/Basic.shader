@@ -8,9 +8,11 @@ layout(location = 2) in vec2 texcoord;
 out vec3 outColor;
 out vec2 outTexcoord;
 
+uniform mat4 transfrom;
+
 void main()
 {
-    gl_Position = vec4(position, 0.0f, 1.0f);
+    gl_Position = transfrom * vec4(position, 0.0f, 1.0f);
     outColor = color;
     outTexcoord = texcoord;
 }

@@ -23,15 +23,6 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 
 int main(void)
 {
-    glm::vec4 vec(1.0f, 0.0f, 0.0f, 1.0f);
-    // 译注：下面就是矩阵初始化的一个例子，如果使用的是0.9.9及以上版本
-    // 下面这行代码就需要改为:
-    // glm::mat4 trans = glm::mat4(1.0f)
-    // 之后将不再进行提示
-    glm::mat4 trans = glm::mat4(1.0f);
-    trans = glm::translate(trans, glm::vec3(1.0f, 1.0f, 0.0f));
-    vec = trans * vec;
-    std::cout << vec.x << vec.y << vec.z << std::endl;
     glfwInit();//初始化GLFW
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);//设置主版本
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);//设置次版本
@@ -169,9 +160,15 @@ int main(void)
             shader.Use();
             GLCall(glBindVertexArray(vao));
 
+            glm::mat4 trans = glm::mat4(1.0f);//对图形的语句处理顺序为从下到上
+            //trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));//使图像每个轴都缩放0.5倍
+            trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));//使图形z轴随时间旋转
+            trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));//使用图像位置右移0.5f，下移0.5f
+
+            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "transfrom"), 1, GL_FALSE, glm::value_ptr(trans)));
+
             //绘制图形
             GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));//第一个参数为绘制的模式，第二个参数为绘制顶点的数量，第三个参数为索引的类型，第四个为偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
-
 
             //交换前缓冲区和后缓冲区，因为如果使用单缓冲区的话，生成的图像需要一步一步的生成出来，看起来不真实，使用双缓冲区的话，前缓冲区为屏幕上显示的图像，后缓冲区为正在渲染的图像，渲染完成之后将两个缓冲区交换，这样可以消除不真实感。
             glfwSwapBuffers(window);
