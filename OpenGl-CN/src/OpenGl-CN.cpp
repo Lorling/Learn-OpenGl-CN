@@ -60,15 +60,57 @@ int main(void)
     {
         //顶点位置，浮点型数组
         GLfloat position[] = {
-            -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-            -0.5f,  0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
-             0.5f,  0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-             0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         };
 
-        GLuint indics[6] = {
-            0, 1, 2,
-            2, 3, 0
+        GLuint indics[] = {
+            0, 1, 2, 2, 3, 0,
+            4, 5, 6, 6, 7, 4,
+            8, 9, 10, 10, 11, 8,
+            12, 13, 14, 14 ,15, 12,
+            16, 17, 18, 18, 19, 16,
+            20, 21, 22, 22, 23, 20
+        };
+
+        glm::vec3 cubePositions[] = {
+            glm::vec3(0.0f,  0.0f,  0.0f),
+            glm::vec3(2.0f,  5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3(2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f,  3.0f, -7.5f),
+            glm::vec3(1.3f, -2.0f, -2.5f),
+            glm::vec3(1.5f,  2.0f, -2.5f),
+            glm::vec3(1.5f,  0.2f, -1.5f),
+            glm::vec3(-1.3f,  1.0f, -1.5f)
         };
 
         //如果是兼容性配置文件的话，会默认创建一个，但是核心配置文件需要自己创建
@@ -82,11 +124,9 @@ int main(void)
         GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof position, position, GL_STATIC_DRAW));//设置缓冲区数据
 
         GLCall(glEnableVertexAttribArray(0));//激活顶点属性，索引0位置
-        GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), 0));//设置顶点属性,第一个参数为位置值，第二个为属性数量，第三个为参数类型，第四个为是否标准化，第五个为步长，第六个为起始位置
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0));//设置顶点属性,第一个参数为位置值，第二个为属性数量，第三个为参数类型，第四个为是否标准化，第五个为步长，第六个为起始位置
         GLCall(glEnableVertexAttribArray(1));//激活顶点属性，索引1位置
-        GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)(2 * sizeof(GLfloat))));//设置顶点属性
-        GLCall(glEnableVertexAttribArray(2));//激活顶点属性，索引1位置
-        GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat))));//设置顶点属性
+        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))));//设置顶点属性
 
         GLCall(glActiveTexture(GL_TEXTURE0));//设置当前纹理单元为0
 
@@ -151,24 +191,67 @@ int main(void)
         //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));//使用线框来绘制三角形
         //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));//切换回默认模式
 
+        GLCall(glEnable(GL_DEPTH_TEST));//开启深度测试，根据z值可以让距离摄像机更近的不会被更远的覆盖
+
         //循环直到用户退出窗口
         while (!glfwWindowShouldClose(window)) {
             //清空上一次的渲染结果
             //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//可以指定使用该颜色来在清空之后 填充
-            GLCall(glClear(GL_COLOR_BUFFER_BIT));
+            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));//GL_DEPTH_BUFFER_BIT为清除深度缓冲
 
             shader.Use();
             GLCall(glBindVertexArray(vao));
 
+            for (unsigned int i = 0;i < 10;i++) {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, cubePositions[i]);
+                float angel = 20.0f * i;
+                model = glm::rotate(model, glm::radians(angel), glm::vec3(1.0f, 0.3f, 0.5f));
+                GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "model"), 1, GL_FALSE, glm::value_ptr(model)));
+
+                //观察矩阵，使物体向移动场景的反方向移动
+                glm::mat4 view = glm::mat4(1.0f);
+                view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+                //投影矩阵，使物体按透视的方法变换到裁剪坐标
+                glm::mat4 projection = glm::mat4(1.0f);
+                projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+
+                GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "view"), 1, GL_FALSE, glm::value_ptr(view)));
+                GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection)));
+
+                GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));
+            }
+
+            /*
+            //模型矩阵，使物体沿x轴选择，将物体变换到世界坐标
+            glm::mat4 model = glm::mat4(1.0f);
+            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+
+            //观察矩阵，使物体向移动场景的反方向移动
+            glm::mat4 view = glm::mat4(1.0f);
+            view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+
+            //投影矩阵，使物体按透视的方法变换到裁剪坐标
+            glm::mat4 projection = glm::mat4(1.0f);
+            projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+
+            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "model"), 1, GL_FALSE, glm::value_ptr(model)));
+            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "view"), 1, GL_FALSE, glm::value_ptr(view)));
+            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection)));
+            */
+
+            /*
             glm::mat4 trans = glm::mat4(1.0f);//对图形的语句处理顺序为从下到上
             //trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));//使图像每个轴都缩放0.5倍
             trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));//使图形z轴随时间旋转
             trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));//使用图像位置右移0.5f，下移0.5f
 
             GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "transfrom"), 1, GL_FALSE, glm::value_ptr(trans)));
+            */
 
             //绘制图形
-            GLCall(glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr));//第一个参数为绘制的模式，第二个参数为绘制顶点的数量，第三个参数为索引的类型，第四个为偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
+            //GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));//第一个参数为绘制的模式，第二个参数为绘制顶点的数量，第三个参数为索引的类型，第四个为偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
 
             //交换前缓冲区和后缓冲区，因为如果使用单缓冲区的话，生成的图像需要一步一步的生成出来，看起来不真实，使用双缓冲区的话，前缓冲区为屏幕上显示的图像，后缓冲区为正在渲染的图像，渲染完成之后将两个缓冲区交换，这样可以消除不真实感。
             glfwSwapBuffers(window);
