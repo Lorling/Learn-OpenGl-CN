@@ -14,10 +14,31 @@
 #include <sstream>
 #include <string>
 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+float deltaTime = 0.0f;//当前帧与上一帧的时间差
+float lastFrame = 0.0f;//上一帧的时间
+
+void key_callback(GLFWwindow* window) {
     //如果用户按下esc键，将窗口的WindowShouldClose，既关闭窗口
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+    
+    //如果用户按下WSAD，就将摄像机向相应方向移动
+    float cameraSpeed = 1.5f * deltaTime;//摄像机移动速度
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * glm::normalize(glm::cross(cameraFront,cameraUp));
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
     }
 }
 
@@ -40,7 +61,7 @@ int main(void)
     glfwMakeContextCurrent(window);
 
     //交换间隔，交换缓冲区之前等待的帧数，通常称为v-sync,默认情况下，交换间隔为0,这里设置为1，即每帧更新一次
-    glfwSwapInterval(10);
+    glfwSwapInterval(1);
 
     glewExperimental = GL_TRUE;
     if (glewInit() != GLEW_OK) {
@@ -55,7 +76,7 @@ int main(void)
     glViewport(0, 0, width, height);//前两个参数为窗口左下角的位置，多两个为宽和高
 
     //将函数注册到window的回调函数中
-    glfwSetKeyCallback(window, key_callback);
+    //glfwSetKeyCallback(window, key_callback);
 
     {
         //顶点位置，浮点型数组
@@ -199,6 +220,12 @@ int main(void)
             //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//可以指定使用该颜色来在清空之后 填充
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));//GL_DEPTH_BUFFER_BIT为清除深度缓冲
 
+            float currentFrame = glfwGetTime();
+            deltaTime = currentFrame - lastFrame;
+            lastFrame = currentFrame;
+
+            key_callback(window);
+
             shader.Use();
             GLCall(glBindVertexArray(vao));
 
@@ -211,7 +238,11 @@ int main(void)
 
                 //观察矩阵，使物体向移动场景的反方向移动
                 glm::mat4 view = glm::mat4(1.0f);
-                view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+                view = glm::lookAt(
+                    cameraPos,//摄像机位置
+                    cameraPos + cameraFront,//目标位置
+                    cameraUp//上向量
+                );
 
                 //投影矩阵，使物体按透视的方法变换到裁剪坐标
                 glm::mat4 projection = glm::mat4(1.0f);
