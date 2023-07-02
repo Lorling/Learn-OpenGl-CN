@@ -17,30 +17,19 @@
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
 float deltaTime = 0.0f;//当前帧与上一帧的时间差
 float lastFrame = 0.0f;//上一帧的时间
+float pitch = 0.0f;
+float yaw = -90.0f;
+bool firstMouse;
+float lastx = 400, lasty = 300;
 
-void key_callback(GLFWwindow* window) {
-    //如果用户按下esc键，将窗口的WindowShouldClose，既关闭窗口
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
-    
-    //如果用户按下WSAD，就将摄像机向相应方向移动
-    float cameraSpeed = 1.5f * deltaTime;//摄像机移动速度
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * cameraFront;
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * cameraFront;
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * glm::normalize(glm::cross(cameraFront,cameraUp));
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
-    }
-}
+//键盘回调函数
+void key_callback(GLFWwindow* window);
+
+//鼠标回调函数
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 int main(void)
 {
@@ -60,6 +49,15 @@ int main(void)
     //将窗口的上下文设置为当前上下文
     glfwMakeContextCurrent(window);
 
+    //在调用这个函数之后，无论我们怎么去移动鼠标，光标都不会显示了，它也不会离开窗口。
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    //开启深度测试，根据z值可以让距离摄像机更近的不会被更远的覆盖
+    GLCall(glEnable(GL_DEPTH_TEST));
+
+    //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));//使用线框来绘制三角形
+    //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));//切换回默认模式
+
     //交换间隔，交换缓冲区之前等待的帧数，通常称为v-sync,默认情况下，交换间隔为0,这里设置为1，即每帧更新一次
     glfwSwapInterval(1);
 
@@ -76,7 +74,7 @@ int main(void)
     glViewport(0, 0, width, height);//前两个参数为窗口左下角的位置，多两个为宽和高
 
     //将函数注册到window的回调函数中
-    //glfwSetKeyCallback(window, key_callback);
+    glfwSetCursorPosCallback(window, mouse_callback);
 
     {
         //顶点位置，浮点型数组
@@ -121,6 +119,7 @@ int main(void)
             20, 21, 22, 22, 23, 20
         };
 
+        //十个物体的位置
         glm::vec3 cubePositions[] = {
             glm::vec3(0.0f,  0.0f,  0.0f),
             glm::vec3(2.0f,  5.0f, -15.0f),
@@ -209,11 +208,6 @@ int main(void)
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         shader.Unuse();
 
-        //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));//使用线框来绘制三角形
-        //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));//切换回默认模式
-
-        GLCall(glEnable(GL_DEPTH_TEST));//开启深度测试，根据z值可以让距离摄像机更近的不会被更远的覆盖
-
         //循环直到用户退出窗口
         while (!glfwWindowShouldClose(window)) {
             //清空上一次的渲染结果
@@ -229,6 +223,21 @@ int main(void)
             shader.Use();
             GLCall(glBindVertexArray(vao));
 
+            //观察矩阵，使物体向移动场景的反方向移动
+            glm::mat4 view = glm::mat4(1.0f);
+            view = glm::lookAt(
+                cameraPos,//摄像机位置
+                cameraPos + cameraFront,//目标位置
+                cameraUp//上向量
+            );
+
+            //投影矩阵，使物体按透视的方法变换到裁剪坐标
+            glm::mat4 projection = glm::mat4(1.0f);
+            projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+
+            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "view"), 1, GL_FALSE, glm::value_ptr(view)));
+            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection)));
+
             for (unsigned int i = 0;i < 10;i++) {
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, cubePositions[i]);
@@ -236,53 +245,8 @@ int main(void)
                 model = glm::rotate(model, glm::radians(angel), glm::vec3(1.0f, 0.3f, 0.5f));
                 GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "model"), 1, GL_FALSE, glm::value_ptr(model)));
 
-                //观察矩阵，使物体向移动场景的反方向移动
-                glm::mat4 view = glm::mat4(1.0f);
-                view = glm::lookAt(
-                    cameraPos,//摄像机位置
-                    cameraPos + cameraFront,//目标位置
-                    cameraUp//上向量
-                );
-
-                //投影矩阵，使物体按透视的方法变换到裁剪坐标
-                glm::mat4 projection = glm::mat4(1.0f);
-                projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-
-                GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "view"), 1, GL_FALSE, glm::value_ptr(view)));
-                GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection)));
-
-                GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));
+                GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));//第一个参数为绘制的模式，第二个参数为绘制顶点的数量，第三个参数为索引的类型，第四个为偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
             }
-
-            /*
-            //模型矩阵，使物体沿x轴选择，将物体变换到世界坐标
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
-
-            //观察矩阵，使物体向移动场景的反方向移动
-            glm::mat4 view = glm::mat4(1.0f);
-            view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
-
-            //投影矩阵，使物体按透视的方法变换到裁剪坐标
-            glm::mat4 projection = glm::mat4(1.0f);
-            projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-
-            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "model"), 1, GL_FALSE, glm::value_ptr(model)));
-            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "view"), 1, GL_FALSE, glm::value_ptr(view)));
-            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection)));
-            */
-
-            /*
-            glm::mat4 trans = glm::mat4(1.0f);//对图形的语句处理顺序为从下到上
-            //trans = glm::scale(trans, glm::vec3(0.5f, 0.5f, 0.5f));//使图像每个轴都缩放0.5倍
-            trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));//使图形z轴随时间旋转
-            trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));//使用图像位置右移0.5f，下移0.5f
-
-            GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "transfrom"), 1, GL_FALSE, glm::value_ptr(trans)));
-            */
-
-            //绘制图形
-            //GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));//第一个参数为绘制的模式，第二个参数为绘制顶点的数量，第三个参数为索引的类型，第四个为偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
 
             //交换前缓冲区和后缓冲区，因为如果使用单缓冲区的话，生成的图像需要一步一步的生成出来，看起来不真实，使用双缓冲区的话，前缓冲区为屏幕上显示的图像，后缓冲区为正在渲染的图像，渲染完成之后将两个缓冲区交换，这样可以消除不真实感。
             glfwSwapBuffers(window);
@@ -293,4 +257,53 @@ int main(void)
     }
     glfwTerminate();//释放glfw分配的资源
     return 0;
+}
+
+void key_callback(GLFWwindow* window) {
+    //如果用户按下esc键，将窗口的WindowShouldClose，既关闭窗口
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
+        glfwSetWindowShouldClose(window, true);
+    }
+
+    //如果用户按下WSAD，就将摄像机向相应方向移动
+    float cameraSpeed = 1.5f * deltaTime;//摄像机移动速度
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * cameraFront;
+    }
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+        cameraPos -= cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+    }
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
+        cameraPos += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+    }
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
+    if (!firstMouse) {
+        firstMouse = 1;
+        lastx = xpos;
+        lasty = ypos;
+    }
+    float xoffset = xpos - lastx;
+    float yoffset = lasty - ypos;// 注意这里是相反的，因为y坐标是从底部往顶部依次增大的
+    lastx = xpos;
+    lasty = ypos;
+
+    float sensitivity = 0.5f;
+    xoffset *= sensitivity;
+    yoffset *= sensitivity;
+    yaw += xoffset;
+    pitch += yoffset;
+    //限制摄像机不能俯仰九十度
+    pitch = std::min(pitch, 89.0f);
+    pitch = std::max(pitch, -89.0f);
+
+    glm::vec3 front;
+    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    front.y = sin(glm::radians(pitch));
+    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+    cameraFront = glm::normalize(front);
 }
