@@ -8,6 +8,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "../res/stb_image/stb_image.h"
+#include "Camera.h"
 
 #include <iostream>
 #include <fstream>
@@ -20,16 +21,16 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 float deltaTime = 0.0f;//当前帧与上一帧的时间差
 float lastFrame = 0.0f;//上一帧的时间
-float pitch = 0.0f;
-float yaw = -90.0f;
-bool firstMouse;
-float lastx = 400, lasty = 300;
+
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
 //键盘回调函数
 void key_callback(GLFWwindow* window);
 
 //鼠标回调函数
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 
 int main(void)
 {
@@ -75,6 +76,7 @@ int main(void)
 
     //将函数注册到window的回调函数中
     glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
 
     {
         //顶点位置，浮点型数组
@@ -224,16 +226,11 @@ int main(void)
             GLCall(glBindVertexArray(vao));
 
             //观察矩阵，使物体向移动场景的反方向移动
-            glm::mat4 view = glm::mat4(1.0f);
-            view = glm::lookAt(
-                cameraPos,//摄像机位置
-                cameraPos + cameraFront,//目标位置
-                cameraUp//上向量
-            );
+            glm::mat4 view = camera.GetViewMatrix();
 
             //投影矩阵，使物体按透视的方法变换到裁剪坐标
             glm::mat4 projection = glm::mat4(1.0f);
-            projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
+            projection = glm::perspective(glm::radians(camera.GetFov()), (float)width / height, 0.1f, 100.0f);
 
             GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "view"), 1, GL_FALSE, glm::value_ptr(view)));
             GLCall(glUniformMatrix4fv(glGetUniformLocation(shader.GetProgramID(), "projection"), 1, GL_FALSE, glm::value_ptr(projection)));
@@ -266,44 +263,24 @@ void key_callback(GLFWwindow* window) {
     }
 
     //如果用户按下WSAD，就将摄像机向相应方向移动
-    float cameraSpeed = 1.5f * deltaTime;//摄像机移动速度
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * cameraFront;
+        camera.ProcessKeyborad(FORWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.ProcessKeyborad(BACKWARD, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+        camera.ProcessKeyborad(LEFT, deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * glm::normalize(glm::cross(cameraFront, cameraUp));
+        camera.ProcessKeyborad(RIGHT, deltaTime);
     }
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
-    if (!firstMouse) {
-        firstMouse = 1;
-        lastx = xpos;
-        lasty = ypos;
-    }
-    float xoffset = xpos - lastx;
-    float yoffset = lasty - ypos;// 注意这里是相反的，因为y坐标是从底部往顶部依次增大的
-    lastx = xpos;
-    lasty = ypos;
+    camera.MouseMovement(xpos, ypos);
+}
 
-    float sensitivity = 0.5f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-    yaw += xoffset;
-    pitch += yoffset;
-    //限制摄像机不能俯仰九十度
-    pitch = std::min(pitch, 89.0f);
-    pitch = std::max(pitch, -89.0f);
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
+    camera.MoustScroll(yoffset);
 }
