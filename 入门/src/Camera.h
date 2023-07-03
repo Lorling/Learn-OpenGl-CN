@@ -43,7 +43,6 @@ public:
 	void MoustScroll(double yoffset);//¹öÂÖ»Øµ÷º¯Êý
 
 	float GetFov() { return Fov; }
-	glm::vec3 GetPosition() { return Position; };
 private:
 	void UpdateCameraVectors();
 };

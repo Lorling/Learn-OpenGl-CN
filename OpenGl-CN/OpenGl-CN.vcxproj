@@ -142,6 +142,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
+    <None Include="res\shaders\Light.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h" />

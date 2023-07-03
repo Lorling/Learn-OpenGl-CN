@@ -3,12 +3,11 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include <vector>
 
 Shader::Shader(const std::string& filepath) : Program(0)
 {
-    GLCall(Program = glCreateProgram());//创建程序
-    ParseShader(filepath);
+    ShaderProgramSource source = ParseShader(filepath);
+    Program = CreateShader(source.VertexSource, source.FragmentSource);
 }
 
 Shader::~Shader()
@@ -26,13 +25,16 @@ void Shader::Unuse()
     GLCall(glUseProgram(0));
 }
 
-void Shader::ParseShader(const std::string& filepath) {
+ShaderProgramSource Shader::ParseShader(const std::string& filepath) {
     std::ifstream stream(filepath);
+
+    enum class ShaderType {
+        NONE = -1, VERTEX = 0, FRAGMENT = 1
+    };
 
     std::string line;
     std::stringstream ss[2];
     ShaderType type = ShaderType::NONE;
-    std::vector<ShaderType> v;
     while (getline(stream, line)) {
         if (line.find("#shader") != std::string::npos) {//npos是一个无效的字符串位置
             if (line.find("vertex") != std::string::npos) {
@@ -41,23 +43,12 @@ void Shader::ParseShader(const std::string& filepath) {
             else if (line.find("fragment") != std::string::npos) {
                 type = ShaderType::FRAGMENT;
             }
-            if (ss[(int)type].str().size()) {
-                CreateShader(type, ss[(int)type].str());
-            }
-            ss[(int)type].clear();
-            v.push_back(type);
         }
         else if (type != ShaderType::NONE) {
             ss[(int)type] << line << '\n';
         }
     }
-    for (auto i : v) {
-        if (i == ShaderType::NONE) continue;
-        if (ss[(int)i].str().size()) {
-            CreateShader(i, ss[(int)i].str());
-        }
-    }
-    
+    return { ss[0].str(),ss[1].str() };
 }
 
 GLuint Shader::CompileShader(GLuint type, const std::string& source) {
@@ -83,31 +74,20 @@ GLuint Shader::CompileShader(GLuint type, const std::string& source) {
     return id;
 }
 
-void Shader::CreateShader(ShaderType& type, const std::string& sourceShader) {
-    GLuint shader;
-    if(type == ShaderType::VERTEX) shader = CompileShader(GL_VERTEX_SHADER, sourceShader);
-    if(type == ShaderType::FRAGMENT) shader = CompileShader(GL_FRAGMENT_SHADER, sourceShader);
+GLuint Shader::CreateShader(const std::string& vertexShader, const std::string& fragmentShader) {
+    GLCall(GLuint program = glCreateProgram());//创建程序
+    GLuint vs = CompileShader(GL_VERTEX_SHADER, vertexShader);
+    GLuint fs = CompileShader(GL_FRAGMENT_SHADER, fragmentShader);
 
     //讲着色器附加到程序上
-    GLCall(glAttachShader(Program, shader));
-    GLCall(glLinkProgram(Program));//链接程序
-    GLCall(glValidateProgram(Program));//验证
+    GLCall(glAttachShader(program, vs));
+    GLCall(glAttachShader(program, fs));
+    GLCall(glLinkProgram(program));//链接程序
+    GLCall(glValidateProgram(program));//验证
 
     //删除着色器，因为他们已经被链接到了程序里面，所以他们不再被需要了
-    GLCall(glDeleteShader(shader));
-}
+    GLCall(glDeleteShader(vs));
+    GLCall(glDeleteShader(fs));
 
-void Shader::SetUniformVec3(const char* uniformName, float f1, float f2, float f3)
-{
-    GLCall(glUniform3f(glGetUniformLocation(Program, uniformName), f1, f2, f3));
-}
-
-void Shader::SetUniformVec3(const char* uniformName, glm::vec3 vector)
-{
-    GLCall(glUniform3f(glGetUniformLocation(Program, uniformName), vector.x, vector.y, vector.z));
-}
-
-void Shader::SetUniformMatrix4fv(const char* uniformName, glm::mat4 matrix)
-{
-    GLCall(glUniformMatrix4fv(glGetUniformLocation(Program, uniformName), 1, GL_FALSE, glm::value_ptr(matrix)));
+    return program;
 }

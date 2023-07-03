@@ -2,9 +2,10 @@
 #version 330 core
 
 layout(location = 0) in vec3 position;
-layout(location = 1) in vec2 texcoord;
+layout(location = 1) in vec3 aNormal;
 
-out vec2 outTexcoord;
+out vec3 Normal;
+out vec3 FragPos;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -13,20 +14,39 @@ uniform mat4 projection;
 void main()
 {
     gl_Position = projection * view * model * vec4(position, 1.0f);
-    outTexcoord = texcoord;
+    Normal = aNormal * mat3(transpose(inverse(model)));//法线矩阵
+    FragPos = vec3(model * vec4(position, 1.0f));
 }
 
 #shader fragment
 #version 330 core
 
 layout(location = 0) out vec4 color;
-in vec2 outTexcoord;
 
-uniform vec4 u_color;
-uniform sampler2D u_texture1;
-uniform sampler2D u_terture2;
+in vec3 Normal;
+in vec3 FragPos;
+
+uniform vec3 objectColor;
+uniform vec3 lightColor;
+uniform vec3 lightPos;
+uniform vec3 viewPos;
 
 void main()
 {
-    color = mix(texture(u_texture1, outTexcoord), texture(u_terture2, outTexcoord), 0.2f) * vec4(u_color);
+    float ambientStrength = 0.1f;
+    vec3 ambient = ambientStrength * lightColor;
+    
+    vec3 normal = normalize(Normal);
+    vec3 lightDir = normalize(lightPos - FragPos);
+    float diff = max(dot(normal, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
+    
+    float specularStrength = 0.5f;
+    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 reflectDir = reflect(-lightDir , normal);//需要对光线方向取反，将光线的方向转换到和我们的视线一个方向
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0f), 32);//取幂为求反光度，反光度越高高光点越集中，反之发散
+    vec3 specular = specularStrength * spec * lightColor;
+    
+    vec3 result = (ambient + diffuse + specular) * objectColor;
+    color = vec4(result, 1.0f);
 }
