@@ -116,3 +116,8 @@ void Shader::SetUniformFloat(const char* uniformName, float f)
 {
     GLCall(glUniform1f(glGetUniformLocation(Program, uniformName), f));
 }
+
+void Shader::SetUniformInt(const char* uniformName, int t)
+{
+    GLCall(glUniform1i(glGetUniformLocation(Program, uniformName), t));
+}

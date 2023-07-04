@@ -26,6 +26,7 @@ Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 void key_callback(GLFWwindow* window);//键盘回调函数
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);//鼠标回调函数
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);//滚轮回调函数
+unsigned int loadTexture(const char* filepath);
 
 int main(void)
 {
@@ -76,35 +77,35 @@ int main(void)
     {
         //顶点位置，浮点型数组
         GLfloat position[] = {
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
-             0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f, 1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-             0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, 0.0f, 1.0f,
 
-            -0.5f,  0.5f,  0.5f,  -1.0f, 0.0f, 0.0f,
-            -0.5f,  0.5f, -0.5f,  -1.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f, -0.5f,  -1.0f, 0.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  -1.0f, 0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  -1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  -1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 0.0f, 0.0f, 1.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
 
-            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
-             0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f,
-             0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, -1.0f, 0.0f, 1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
 
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-             0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-             0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 0.0f, 0.0f, 0.0f
         };
 
         GLuint indics[] = {
@@ -127,9 +128,11 @@ int main(void)
         GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof position, position, GL_STATIC_DRAW));//设置缓冲区数据
 
         GLCall(glEnableVertexAttribArray(0));//激活顶点属性，索引0位置
-        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0));//设置顶点属性,第一个参数为位置值，第二个为属性数量，第三个为参数类型，第四个为是否标准化，第五个为步长，第六个为起始位置
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0));//设置顶点属性,第一个参数为位置值，第二个为属性数量，第三个为参数类型，第四个为是否标准化，第五个为步长，第六个为起始位置
         GLCall(glEnableVertexAttribArray(1));//激活顶点属性，索引0位置
-        GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(3 * sizeof(float))));
+        GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(float))));
+        GLCall(glEnableVertexAttribArray(2));//激活顶点属性，索引0位置
+        GLCall(glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(6 * sizeof(float))));
 
         GLuint ibo;
         GLCall(glGenBuffers(1, &ibo));//生成索引缓冲区
@@ -143,7 +146,7 @@ int main(void)
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, buffer));//绑定缓冲区
 
         GLCall(glEnableVertexAttribArray(0));//激活顶点属性，索引0位置
-        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0));//设置顶点属性,第一个参数为位置值，第二个为属性数量，第三个为参数类型，第四个为是否标准化，第五个为步长，第六个为起始位置
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), 0));//设置顶点属性,第一个参数为位置值，第二个为属性数量，第三个为参数类型，第四个为是否标准化，第五个为步长，第六个为起始位置
         //ibo与buffer同理
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));//绑定索引缓冲区
 
@@ -151,9 +154,16 @@ int main(void)
         Shader lightShader("res/shaders/Light.shader");
         shader.Use();
 
-        shader.SetUniformVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-        shader.SetUniformVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-        shader.SetUniformVec3("material.specular", 0.5f, 0.5f, 0.5f);
+        shader.SetUniformInt("material.specular", 0);
+        GLCall(glActiveTexture(GL_TEXTURE0));
+        unsigned int diffuseMap = loadTexture("res/textures/container2.png");
+        GLCall(glBindTexture(GL_TEXTURE_2D, diffuseMap));
+
+        shader.SetUniformInt("material.specular", 1);
+        GLCall(glActiveTexture(GL_TEXTURE1));
+        unsigned int specularMap = loadTexture("res/textures/container2_specular.png");
+        GLCall(glBindTexture(GL_TEXTURE_2D, specularMap));
+
         shader.SetUniformFloat("material.shininess", 32.0f);
         shader.SetUniformVec3("light.position", lightPos);
 
@@ -188,10 +198,7 @@ int main(void)
             shader.SetUniformMatrix4fv("projection", projection);
             shader.SetUniformVec3("viewPos", camera.GetPosition());
 
-            glm::vec3 lightColor;
-            lightColor.x = sin(glfwGetTime() * 2.0f);
-            lightColor.y = sin(glfwGetTime() * 0.7f);
-            lightColor.z = sin(glfwGetTime() * 1.3f);
+            glm::vec3 lightColor = glm::vec3(1.0f);
 
             shader.SetUniformVec3("light.ambient", lightColor* glm::vec3(0.2f));
             shader.SetUniformVec3("light.diffuse", lightColor* glm::vec3(0.5f));
@@ -254,4 +261,33 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera.MoustScroll(yoffset);
+}
+
+unsigned int loadTexture(const char* filepath) {
+    unsigned int id;
+    GLCall(glGenTextures(1, &id));
+    
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(filepath, &width, &height, &nrComponents, 0);
+    if (data) {
+        GLenum fromat;
+        if (nrComponents == 1) fromat = GL_RED;
+        else if (nrComponents == 3) fromat = GL_RGB;
+        else if (nrComponents == 4) fromat = GL_RGBA;
+
+        GLCall(glBindTexture(GL_TEXTURE_2D, id));
+        GLCall(glTexImage2D(GL_TEXTURE_2D, 0, fromat, width, height, 0, fromat, GL_UNSIGNED_BYTE, data));
+        GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else {
+        std::cout << "Texture failed to load at path : " << filepath << std::endl;
+    }
+    stbi_image_free(data);
+
+    return id;
 }
