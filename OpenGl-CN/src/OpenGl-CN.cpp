@@ -1,5 +1,4 @@
-﻿//#include <GL/glew.h>
-#include <glad/glad.h>
+﻿#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include <glm/glm.hpp>
@@ -24,13 +23,9 @@ glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
-//键盘回调函数
-void key_callback(GLFWwindow* window);
-
-//鼠标回调函数
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
-
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void key_callback(GLFWwindow* window);//键盘回调函数
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);//鼠标回调函数
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);//滚轮回调函数
 
 int main(void)
 {
@@ -156,9 +151,11 @@ int main(void)
         Shader lightShader("res/shaders/Light.shader");
         shader.Use();
 
-        shader.SetUniformVec3("objectColor", 1.0f, 0.5f, 0.31f);
-        shader.SetUniformVec3("lightColor", 1.0f, 1.0f, 1.0f);
-        shader.SetUniformVec3("lightPos", lightPos);
+        shader.SetUniformVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+        shader.SetUniformVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+        shader.SetUniformVec3("material.specular", 0.5f, 0.5f, 0.5f);
+        shader.SetUniformFloat("material.shininess", 32.0f);
+        shader.SetUniformVec3("light.position", lightPos);
 
         GLCall(glBindVertexArray(0));
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -190,6 +187,15 @@ int main(void)
             shader.SetUniformMatrix4fv("view", view);
             shader.SetUniformMatrix4fv("projection", projection);
             shader.SetUniformVec3("viewPos", camera.GetPosition());
+
+            glm::vec3 lightColor;
+            lightColor.x = sin(glfwGetTime() * 2.0f);
+            lightColor.y = sin(glfwGetTime() * 0.7f);
+            lightColor.z = sin(glfwGetTime() * 1.3f);
+
+            shader.SetUniformVec3("light.ambient", lightColor* glm::vec3(0.2f));
+            shader.SetUniformVec3("light.diffuse", lightColor* glm::vec3(0.5f));
+            shader.SetUniformVec3("light.specular", lightColor* glm::vec3(1.0f));
 
             GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));//第一个参数为绘制的模式，第二个参数为绘制顶点的数量，第三个参数为索引的类型，第四个为偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
 

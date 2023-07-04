@@ -111,3 +111,8 @@ void Shader::SetUniformMatrix4fv(const char* uniformName, glm::mat4 matrix)
 {
     GLCall(glUniformMatrix4fv(glGetUniformLocation(Program, uniformName), 1, GL_FALSE, glm::value_ptr(matrix)));
 }
+
+void Shader::SetUniformFloat(const char* uniformName, float f)
+{
+    GLCall(glUniform1f(glGetUniformLocation(Program, uniformName), f));
+}

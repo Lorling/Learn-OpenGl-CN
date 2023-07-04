@@ -26,6 +26,7 @@ public:
 	void SetUniformVec3(const char* uniformName, float f1, float f2, float f3);
 	void SetUniformVec3(const char* uniformName, glm::vec3 vector);
 	void SetUniformMatrix4fv(const char* uniformName, glm::mat4 matrix);
+	void SetUniformFloat(const char* uniformName, float f);
 private:
 	//将路径所指向的*.shader源码中的多个着色器拆分
 	void ParseShader(const std::string& filepath);
