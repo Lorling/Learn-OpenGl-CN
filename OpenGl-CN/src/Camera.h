@@ -44,6 +44,7 @@ public:
 
 	float GetFov() { return Fov; }
 	glm::vec3 GetPosition() { return Position; };
+	glm::vec3 GetFront() { return Front; };
 private:
 	void UpdateCameraVectors();
 };

@@ -41,7 +41,8 @@ struct Material
 struct Light
 {
     vec3 position;
-    //vec3 direction;//平行光不需要光源位置
+    vec3 direction;
+    float cutoff;//点光源聚光的半径
     
     vec3 ambient;
     vec3 diffuse;
@@ -77,6 +78,16 @@ void main()
     diffuse   *= attenuation;
     specular  *= attenuation;
     
-    vec3 result = ambient + diffuse + specular;
+    vec3 result;
+    float thete = dot(lightDir, normalize(-light.direction));
+    if (thete > light.cutoff)
+    {
+        result = ambient + diffuse + specular;
+    }
+    else
+    {
+        result = ambient;
+    }
+    
     color = vec4(result, 1.0f);
 }

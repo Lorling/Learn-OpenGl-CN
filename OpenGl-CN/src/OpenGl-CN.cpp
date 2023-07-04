@@ -178,8 +178,7 @@ int main(void)
         GLCall(glBindTexture(GL_TEXTURE_2D, specularMap));
 
         shader.SetUniformFloat("material.shininess", 32.0f);
-        shader.SetUniformVec3("light.position", lightPos);
-        //shader.SetUniformVec3("light.direction", -0.2f, -1.0f, -0.3f);
+        shader.SetUniformFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
         shader.SetUniformFloat("light.constant", 1.0f);
         shader.SetUniformFloat("light.linear", 0.09f);
         shader.SetUniformFloat("light.quadratic", 0.032f);
@@ -213,6 +212,8 @@ int main(void)
             shader.SetUniformMatrix4fv("view", view);
             shader.SetUniformMatrix4fv("projection", projection);
             shader.SetUniformVec3("viewPos", camera.GetPosition());
+            shader.SetUniformVec3("light.position", camera.GetPosition());
+            shader.SetUniformVec3("light.direction", camera.GetFront());
 
             glm::vec3 lightColor = glm::vec3(1.0f);
 
