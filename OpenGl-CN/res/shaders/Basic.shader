@@ -42,7 +42,8 @@ struct Light
 {
     vec3 position;
     vec3 direction;
-    float cutoff;//点光源聚光的半径
+    float cutoff;//点光源内光锥聚光的半径
+    float outerCutoff;//外光锥
     
     vec3 ambient;
     vec3 diffuse;
@@ -59,35 +60,40 @@ uniform Light light;
 
 void main()
 {
+    //环境光
     vec3 ambient = light.ambient * vec3(texture(material.diffuse, TexCoords));
     
+    //漫反射
     vec3 normal = normalize(Normal);
     vec3 lightDir = normalize(light.position - FragPos);
     //vec3 lightDir = normalize(-light.direction);
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 diffuse = light.diffuse * diff * vec3(texture(material.diffuse, TexCoords));
     
+    //镜面反射
     vec3 viewDir = normalize(viewPos - FragPos);
     vec3 reflectDir = reflect(-lightDir , normal);//需要对光线方向取反，将光线的方向转换到和我们的视线一个方向
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);//取幂为求反光度，反光度越高高光点越集中，反之发散
     vec3 specular = light.specular * spec * vec3(texture(material.specular, TexCoords));
     
-    float distance = length(light.position - FragPos);
-    float attenuation = 1.0/(light.constant + light.linear * distance + light.quadratic * (distance * distance));
-    ambient   *= attenuation;
-    diffuse   *= attenuation;
-    specular  *= attenuation;
+    //据光源
+    float theta = dot(lightDir, normalize(-light.direction));
+    float epsilon = light.cutoff - light.outerCutoff;
+    float intensity = clamp((theta - light.outerCutoff) / epsilon, 0.0f, 1.0f);
+    //不对环境光做影响，让物体总是可以发一点光
+    diffuse  *= intensity;
+    specular *= intensity;
     
-    vec3 result;
-    float thete = dot(lightDir, normalize(-light.direction));
-    if (thete > light.cutoff)
-    {
-        result = ambient + diffuse + specular;
-    }
-    else
-    {
-        result = ambient;
-    }
+    //点光源
+    float distance = length(light.position - FragPos);
+    float attenuation = 1.0 / (light.constant + light.
+    linear * distance
+    +light.quadratic * (distance * distance));
+    ambient *= attenuation;
+    diffuse *= attenuation;
+    specular *= attenuation;
+    
+    vec3 result = ambient + diffuse + specular;
     
     color = vec4(result, 1.0f);
 }

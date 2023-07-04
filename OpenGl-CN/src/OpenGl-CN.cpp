@@ -163,25 +163,15 @@ int main(void)
         //ibo与buffer同理
         GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo));//绑定索引缓冲区
 
+        unsigned int diffuseMap = loadTexture("res/textures/container2.png");
+        unsigned int specularMap = loadTexture("res/textures/container2_specular.png");
+
         Shader shader("res/shaders/Basic.shader");
         Shader lightShader("res/shaders/Light.shader");
         shader.Use();
 
-        shader.SetUniformInt("material.specular", 0);
-        GLCall(glActiveTexture(GL_TEXTURE0));
-        unsigned int diffuseMap = loadTexture("res/textures/container2.png");
-        GLCall(glBindTexture(GL_TEXTURE_2D, diffuseMap));
-
+        shader.SetUniformInt("material.diffuse", 0);
         shader.SetUniformInt("material.specular", 1);
-        GLCall(glActiveTexture(GL_TEXTURE1));
-        unsigned int specularMap = loadTexture("res/textures/container2_specular.png");
-        GLCall(glBindTexture(GL_TEXTURE_2D, specularMap));
-
-        shader.SetUniformFloat("material.shininess", 32.0f);
-        shader.SetUniformFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
-        shader.SetUniformFloat("light.constant", 1.0f);
-        shader.SetUniformFloat("light.linear", 0.09f);
-        shader.SetUniformFloat("light.quadratic", 0.032f);
 
         GLCall(glBindVertexArray(0));
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -215,11 +205,24 @@ int main(void)
             shader.SetUniformVec3("light.position", camera.GetPosition());
             shader.SetUniformVec3("light.direction", camera.GetFront());
 
+            shader.SetUniformFloat("material.shininess", 32.0f);
+            shader.SetUniformFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
+            shader.SetUniformFloat("light.outerCutoff", glm::cos(glm::radians(17.5f)));
+            shader.SetUniformFloat("light.constant", 1.0f);
+            shader.SetUniformFloat("light.linear", 0.09f);
+            shader.SetUniformFloat("light.quadratic", 0.032f);
+
             glm::vec3 lightColor = glm::vec3(1.0f);
 
             shader.SetUniformVec3("light.ambient", lightColor* glm::vec3(0.2f));
             shader.SetUniformVec3("light.diffuse", lightColor* glm::vec3(0.5f));
             shader.SetUniformVec3("light.specular", lightColor* glm::vec3(1.0f));
+
+            GLCall(glActiveTexture(GL_TEXTURE0));
+            GLCall(glBindTexture(GL_TEXTURE_2D, diffuseMap));
+            GLCall(glActiveTexture(GL_TEXTURE1));
+            GLCall(glBindTexture(GL_TEXTURE_2D, specularMap));
+
             for (unsigned int i = 0;i < 10;i++) {
                 glm::mat4 model = glm::mat4(1.0f);
                 model = glm::translate(model, cubePositions[i]);
