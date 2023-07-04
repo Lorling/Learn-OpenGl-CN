@@ -117,6 +117,19 @@ int main(void)
             20, 21, 22, 22, 23, 20
         };
 
+        glm::vec3 cubePositions[] = {
+            glm::vec3(0.0f,  0.0f,  0.0f),
+            glm::vec3(2.0f,  5.0f, -15.0f),
+            glm::vec3(-1.5f, -2.2f, -2.5f),
+            glm::vec3(-3.8f, -2.0f, -12.3f),
+            glm::vec3(2.4f, -0.4f, -3.5f),
+            glm::vec3(-1.7f,  3.0f, -7.5f),
+            glm::vec3(1.3f, -2.0f, -2.5f),
+            glm::vec3(1.5f,  2.0f, -2.5f),
+            glm::vec3(1.5f,  0.2f, -1.5f),
+            glm::vec3(-1.3f,  1.0f, -1.5f)
+        };
+
         //如果是兼容性配置文件的话，会默认创建一个，但是核心配置文件需要自己创建
         GLuint vao;//顶点数组对象
         GLCall(glGenVertexArrays(1, &vao));
@@ -165,7 +178,7 @@ int main(void)
         GLCall(glBindTexture(GL_TEXTURE_2D, specularMap));
 
         shader.SetUniformFloat("material.shininess", 32.0f);
-        shader.SetUniformVec3("light.position", lightPos);
+        shader.SetUniformVec3("light.direction", -0.2f, -1.0f, -0.3f);
 
         GLCall(glBindVertexArray(0));
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, 0));
@@ -186,14 +199,13 @@ int main(void)
             shader.Use();
             GLCall(glBindVertexArray(vao));
 
-            glm::mat4 model = glm::mat4(1.0f);
+            
             //观察矩阵，使物体向移动场景的反方向移动
             glm::mat4 view = camera.GetViewMatrix();
             //投影矩阵，使物体按透视的方法变换到裁剪坐标
             glm::mat4 projection = glm::mat4(1.0f);
             projection = glm::perspective(glm::radians(camera.GetFov()), (float)width / height, 0.1f, 100.0f);
 
-            shader.SetUniformMatrix4fv("model", model);
             shader.SetUniformMatrix4fv("view", view);
             shader.SetUniformMatrix4fv("projection", projection);
             shader.SetUniformVec3("viewPos", camera.GetPosition());
@@ -203,13 +215,20 @@ int main(void)
             shader.SetUniformVec3("light.ambient", lightColor* glm::vec3(0.2f));
             shader.SetUniformVec3("light.diffuse", lightColor* glm::vec3(0.5f));
             shader.SetUniformVec3("light.specular", lightColor* glm::vec3(1.0f));
+            for (unsigned int i = 0;i < 10;i++) {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, cubePositions[i]);
+                float angle = 20.0f * i;
+                model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+                shader.SetUniformMatrix4fv("model", model);
 
-            GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));//第一个参数为绘制的模式，第二个参数为绘制顶点的数量，第三个参数为索引的类型，第四个为偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
+                GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));//第一个参数为绘制的模式，第二个参数为绘制顶点的数量，第三个参数为索引的类型，第四个为偏移量（或者传递一个索引数组，但是这是当你不在使用索引缓冲对象的时候）
+            }
 
             lightShader.Use();
             GLCall(glBindVertexArray(lightvao));
 
-            model = glm::mat4(1.0f);
+            glm::mat4 model = glm::mat4(1.0f);
             model = glm::translate(model, lightPos);
             model = glm::scale(model, glm::vec3(0.2f));//将灯光的体积缩小
 
