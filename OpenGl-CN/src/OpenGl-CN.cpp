@@ -20,6 +20,7 @@ float lastFrame = 0.0f;//上一帧的时间
 
 //灯光在世界坐标中的位置
 glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 dirLightDir(-0.2f, -1.0f, -0.3f);
 
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -130,6 +131,13 @@ int main(void)
             glm::vec3(-1.3f,  1.0f, -1.5f)
         };
 
+        glm::vec3 pointLightPositions[] = {
+            glm::vec3(0.7f,  0.2f,  2.0f),
+            glm::vec3(2.3f, -3.3f, -4.0f),
+            glm::vec3(-4.0f,  2.0f, -12.0f),
+            glm::vec3(0.0f,  0.0f, -3.0f)
+        };
+
         //如果是兼容性配置文件的话，会默认创建一个，但是核心配置文件需要自己创建
         GLuint vao;//顶点数组对象
         GLCall(glGenVertexArrays(1, &vao));
@@ -191,8 +199,63 @@ int main(void)
 
             shader.Use();
             GLCall(glBindVertexArray(vao));
-
             
+            shader.SetUniformVec3("viewPos", camera.GetPosition());
+            shader.SetUniformFloat("material.shininess", 32.0f);
+
+            shader.SetUniformVec3("dirLight.direction", dirLightDir);
+            shader.SetUniformVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+            shader.SetUniformVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+            shader.SetUniformVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+            shader.SetUniformVec3("pointLights[0].position", pointLightPositions[0]);
+            shader.SetUniformVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
+            shader.SetUniformVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
+            shader.SetUniformVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
+            shader.SetUniformFloat("pointLights[0].constant", 1.0f);
+            shader.SetUniformFloat("pointLights[0].linear", 0.09f);
+            shader.SetUniformFloat("pointLights[0].quadratic", 0.032f);
+
+            shader.SetUniformVec3("pointLights[1].position", pointLightPositions[1]);
+            shader.SetUniformVec3("pointLights[1].ambient", 0.05f, 0.05f, 0.05f);
+            shader.SetUniformVec3("pointLights[1].diffuse", 0.8f, 0.8f, 0.8f);
+            shader.SetUniformVec3("pointLights[1].specular", 1.0f, 1.0f, 1.0f);
+            shader.SetUniformFloat("pointLights[1].constant", 1.0f);
+            shader.SetUniformFloat("pointLights[1].linear", 0.09f);
+            shader.SetUniformFloat("pointLights[1].quadratic", 0.032f);
+
+            shader.SetUniformVec3("pointLights[2].position", pointLightPositions[2]);
+            shader.SetUniformVec3("pointLights[2].ambient", 0.05f, 0.05f, 0.05f);
+            shader.SetUniformVec3("pointLights[2].diffuse", 0.8f, 0.8f, 0.8f);
+            shader.SetUniformVec3("pointLights[2].specular", 1.0f, 1.0f, 1.0f);
+            shader.SetUniformFloat("pointLights[2].constant", 1.0f);
+            shader.SetUniformFloat("pointLights[2].linear", 0.09f);
+            shader.SetUniformFloat("pointLights[2].quadratic", 0.032f);
+
+            shader.SetUniformVec3("pointLights[3].position", pointLightPositions[3]);
+            shader.SetUniformVec3("pointLights[3].ambient", 0.05f, 0.05f, 0.05f);
+            shader.SetUniformVec3("pointLights[3].diffuse", 0.8f, 0.8f, 0.8f);
+            shader.SetUniformVec3("pointLights[3].specular", 1.0f, 1.0f, 1.0f);
+            shader.SetUniformFloat("pointLights[3].constant", 1.0f);
+            shader.SetUniformFloat("pointLights[3].linear", 0.09f);
+            shader.SetUniformFloat("pointLights[3].quadratic", 0.032f);
+
+            shader.SetUniformVec3("spotLight.position", camera.GetPosition());
+            shader.SetUniformVec3("spotLight.direction", camera.GetFront());
+            shader.SetUniformVec3("spotLight.ambient", 0.0f, 0.0f, 0.0f);
+            shader.SetUniformVec3("spotLight.diffuse", 0.8f, 0.8f, 0.8f);
+            shader.SetUniformVec3("spotLight.specular", 1.0f, 1.0f, 1.0f);
+            shader.SetUniformFloat("spotLight.cutoff", glm::cos(glm::radians(12.5f)));
+            shader.SetUniformFloat("spotLight.outerCutoff", glm::cos(glm::radians(17.5f)));
+            shader.SetUniformFloat("spotLight.constant", 1.0f);
+            shader.SetUniformFloat("spotLight.linear", 0.09f);
+            shader.SetUniformFloat("spotLight.quadratic", 0.032f);
+
+            GLCall(glActiveTexture(GL_TEXTURE0));
+            GLCall(glBindTexture(GL_TEXTURE_2D, diffuseMap));
+            GLCall(glActiveTexture(GL_TEXTURE1));
+            GLCall(glBindTexture(GL_TEXTURE_2D, specularMap));
+
             //观察矩阵，使物体向移动场景的反方向移动
             glm::mat4 view = camera.GetViewMatrix();
             //投影矩阵，使物体按透视的方法变换到裁剪坐标
@@ -201,27 +264,6 @@ int main(void)
 
             shader.SetUniformMatrix4fv("view", view);
             shader.SetUniformMatrix4fv("projection", projection);
-            shader.SetUniformVec3("viewPos", camera.GetPosition());
-            shader.SetUniformVec3("light.position", camera.GetPosition());
-            shader.SetUniformVec3("light.direction", camera.GetFront());
-
-            shader.SetUniformFloat("material.shininess", 32.0f);
-            shader.SetUniformFloat("light.cutoff", glm::cos(glm::radians(12.5f)));
-            shader.SetUniformFloat("light.outerCutoff", glm::cos(glm::radians(17.5f)));
-            shader.SetUniformFloat("light.constant", 1.0f);
-            shader.SetUniformFloat("light.linear", 0.09f);
-            shader.SetUniformFloat("light.quadratic", 0.032f);
-
-            glm::vec3 lightColor = glm::vec3(1.0f);
-
-            shader.SetUniformVec3("light.ambient", lightColor* glm::vec3(0.2f));
-            shader.SetUniformVec3("light.diffuse", lightColor* glm::vec3(0.5f));
-            shader.SetUniformVec3("light.specular", lightColor* glm::vec3(1.0f));
-
-            GLCall(glActiveTexture(GL_TEXTURE0));
-            GLCall(glBindTexture(GL_TEXTURE_2D, diffuseMap));
-            GLCall(glActiveTexture(GL_TEXTURE1));
-            GLCall(glBindTexture(GL_TEXTURE_2D, specularMap));
 
             for (unsigned int i = 0;i < 10;i++) {
                 glm::mat4 model = glm::mat4(1.0f);
@@ -235,16 +277,20 @@ int main(void)
 
             lightShader.Use();
             GLCall(glBindVertexArray(lightvao));
-
-            glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, lightPos);
-            model = glm::scale(model, glm::vec3(0.2f));//将灯光的体积缩小
-
-            lightShader.SetUniformMatrix4fv("model", model);
+            
             lightShader.SetUniformMatrix4fv("view", view);
             lightShader.SetUniformMatrix4fv("projection", projection);
 
-            GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));
+            for (int i = 0;i < 4;i++) {
+                glm::mat4 model = glm::mat4(1.0f);
+                model = glm::translate(model, pointLightPositions[i]);
+                model = glm::scale(model, glm::vec3(0.2f));//将灯光的体积缩小
+
+                lightShader.SetUniformMatrix4fv("model", model);
+
+                GLCall(glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr));
+            }
+
 
             //交换前缓冲区和后缓冲区，因为如果使用单缓冲区的话，生成的图像需要一步一步的生成出来，看起来不真实，使用双缓冲区的话，前缓冲区为屏幕上显示的图像，后缓冲区为正在渲染的图像，渲染完成之后将两个缓冲区交换，这样可以消除不真实感。
             glfwSwapBuffers(window);
