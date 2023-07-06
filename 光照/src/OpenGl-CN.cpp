@@ -5,10 +5,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 #include "Renderer.h"
 #include "Shader.h"
 #include "../res/stb_image/stb_image.h"
@@ -141,7 +137,6 @@ int main(void)
             glm::vec3(-4.0f,  2.0f, -12.0f),
             glm::vec3(0.0f,  0.0f, -3.0f)
         };
-        Assimp::Importer importer;
 
         //如果是兼容性配置文件的话，会默认创建一个，但是核心配置文件需要自己创建
         GLuint vao;//顶点数组对象
