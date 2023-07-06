@@ -36,10 +36,15 @@
     <ClCompile Include="src\Mesh.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="src\Model.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\Light.shader" />
+    <None Include="res\objects\nanosuit\nanosuit.blend" />
+    <None Include="res\objects\nanosuit\nanosuit.mtl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -57,6 +62,9 @@
     <ClInclude Include="src\Mesh.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="src\Model.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\textures\container.jpg">
@@ -71,5 +79,62 @@
     <Image Include="res\textures\container2_specular.png">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="res\objects\nanosuit\arm_dif.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\arm_showroom_ddn.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\arm_showroom_spec.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\body_dif.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\body_showroom_ddn.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\body_showroom_spec.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\glass_ddn.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\glass_dif.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\hand_dif.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\hand_showroom_ddn.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\hand_showroom_spec.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\helmet_diff.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\helmet_showroom_ddn.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\helmet_showroom_spec.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\leg_dif.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\leg_showroom_ddn.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\objects\nanosuit\leg_showroom_spec.png">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="res\objects\nanosuit\LICENSE.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="res\objects\nanosuit\nanosuit.obj" />
   </ItemGroup>
 </Project>
