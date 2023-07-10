@@ -15,6 +15,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
+#include <map>
 
 float deltaTime = 0.0f;//当前帧与上一帧的时间差
 float lastFrame = 0.0f;//上一帧的时间
@@ -65,6 +67,10 @@ int main(void)
     GLCall(glStencilFunc(GL_ALWAYS, 1, 0x00FF));
     //第一个参数为模板测试失败时采取的行为，第二个参数为模板测试通过，但深度测试失败时采取的行为，第三个参数为模板测试和深度测试都通过时采取的行为，replace为将模板值设置为glStencilFunc函数设置的ref值。
     GLCall(glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE));
+    //开启混合
+    GLCall(glEnable(GL_BLEND));
+    //设定混合函数
+    GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));//使用线框来绘制三角形
     //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));//切换回默认模式
     //交换间隔，交换缓冲区之前等待的帧数，通常称为v-sync,默认情况下，交换间隔为0,这里设置为1，即每帧更新一次
@@ -132,6 +138,23 @@ int main(void)
             -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
              5.0f, -0.5f, -5.0f,  2.0f, 2.0f
         };
+        float transparentVertices[] = {
+            0.0f,  0.5f,  0.0f,  0.0f,  1.0f,
+            0.0f, -0.5f,  0.0f,  0.0f,  0.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  0.0f,
+
+            0.0f,  0.5f,  0.0f,  0.0f,  1.0f,
+            1.0f, -0.5f,  0.0f,  1.0f,  0.0f,
+            1.0f,  0.5f,  0.0f,  1.0f,  1.0f
+        };
+
+        std::vector<glm::vec3> vegetation;
+        vegetation.push_back(glm::vec3(-1.5f, 0.0f, -0.48f));
+        vegetation.push_back(glm::vec3(1.5f, 0.0f, 0.51f));
+        vegetation.push_back(glm::vec3(0.0f, 0.0f, 0.7f));
+        vegetation.push_back(glm::vec3(-0.3f, 0.0f, -2.3f));
+        vegetation.push_back(glm::vec3(0.5f, 0.0f, -0.6f));
+
         unsigned int vao, vbo;
         GLCall(glGenVertexArrays(1, &vao));
         GLCall(glGenBuffers(1, &vbo));
@@ -149,7 +172,19 @@ int main(void)
         GLCall(glGenBuffers(1, &planevbo));
         GLCall(glBindVertexArray(planevao));
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, planevbo));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof planeVertices, &planeVertices, GL_STATIC_DRAW));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof planeVertices, &planeVertices,  GL_STATIC_DRAW));
+        GLCall(glEnableVertexAttribArray(0));
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, 0));
+        GLCall(glEnableVertexAttribArray(1));
+        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, (void*)(3 * sizeof GL_FLOAT)));
+        GLCall(glBindVertexArray(0));
+
+        unsigned int grassvao, grassvbo;
+        GLCall(glGenVertexArrays(1, &grassvao));
+        GLCall(glGenBuffers(1, &grassvbo));
+        GLCall(glBindVertexArray(grassvao));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, grassvbo));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof transparentVertices, &transparentVertices, GL_STATIC_DRAW));
         GLCall(glEnableVertexAttribArray(0));
         GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, 0));
         GLCall(glEnableVertexAttribArray(1));
@@ -158,9 +193,10 @@ int main(void)
 
         unsigned int cubeTexture = loadTexture("res/textures/marble.jpg");
         unsigned int planeTexture = loadTexture("res/textures/metal.png");
+        unsigned int grassTexture = loadTexture("res/textures/blending_transparent_window.png");
 
         Shader cubeShader("src/shaders/Basic.shader");
-        Shader planeShader("src/shaders/StencilSingle.shader");
+        Shader singleShader("src/shaders/StencilSingle.shader");
 
         cubeShader.Use();
         cubeShader.SetUniformInt("texture1", 0);
@@ -177,12 +213,12 @@ int main(void)
 
             key_callback(window);
 
-            planeShader.Use();
+            cubeShader.Use();
             glm::mat4 model = glm::mat4(1.0f);
             glm::mat4 view = camera.GetViewMatrix();
             glm::mat4 projection = glm::perspective(glm::radians(camera.GetFov()), (float)width / height, 0.1f, 100.0f);
-            planeShader.SetUniformMatrix4fv("view", view);
-            planeShader.SetUniformMatrix4fv("projection", projection);
+            cubeShader.SetUniformMatrix4fv("view", view);
+            cubeShader.SetUniformMatrix4fv("projection", projection);
 
             cubeShader.Use();
             cubeShader.SetUniformMatrix4fv("view", view);
@@ -191,8 +227,9 @@ int main(void)
             //确保在绘制地板时不会更新模板缓冲
             GLCall(glStencilMask(0x00));
             GLCall(glBindVertexArray(planevao));
+            GLCall(glActiveTexture(GL_TEXTURE0));
             GLCall(glBindTexture(GL_TEXTURE_2D, planeTexture));
-            planeShader.SetUniformMatrix4fv("model", model);
+            cubeShader.SetUniformMatrix4fv("model", model);
             GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
             GLCall(glBindVertexArray(0));
 
@@ -200,7 +237,6 @@ int main(void)
             GLCall(glStencilMask(0xFF));
             //绘制方块
             GLCall(glBindVertexArray(vao));
-            GLCall(glActiveTexture(GL_TEXTURE0));
             GLCall(glBindTexture(GL_TEXTURE_2D, cubeTexture));
             model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
             cubeShader.SetUniformMatrix4fv("model", model);
@@ -210,28 +246,23 @@ int main(void)
             cubeShader.SetUniformMatrix4fv("model", model);
             GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 
-            GLCall(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
-            GLCall(glStencilMask(0x00));//禁用模板缓冲的写入
-            GLCall(glDisable(GL_DEPTH_TEST));
-            planeShader.Use();
-            float scale = 1.1f;
-            GLCall(glBindVertexArray(vao));
-            GLCall(glBindTexture(GL_TEXTURE_2D, cubeTexture));
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-            model = glm::scale(model, glm::vec3(scale, scale, scale));
-            cubeShader.SetUniformMatrix4fv("model", model);
-            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-            model = glm::scale(model, glm::vec3(scale, scale, scale));
-            cubeShader.SetUniformMatrix4fv("model", model);
-            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            //绘制窗户
+            std::map<float, glm::vec3> sorted;
+            for (unsigned int i = 0;i < vegetation.size();i++) {
+                float distance = glm::length(camera.GetPosition() - vegetation[i]);
+                sorted[distance] = vegetation[i];
+            }
+            GLCall(glBindVertexArray(grassvao));
+            GLCall(glBindTexture(GL_TEXTURE_2D, grassTexture));
+            for (auto i = sorted.rbegin();i != sorted.rend();i++) {
+                model = glm::mat4(1.0f);
+                model = glm::translate(model, i->second);
+                cubeShader.Use();
+                cubeShader.SetUniformMatrix4fv("model", model);
+                GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+            }
             
             GLCall(glBindVertexArray(0));
-            GLCall(glStencilMask(0xFF));
-            GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
-            GLCall(glEnable(GL_DEPTH_TEST));
 
             //交换前缓冲区和后缓冲区，因为如果使用单缓冲区的话，生成的图像需要一步一步的生成出来，看起来不真实，使用双缓冲区的话，前缓冲区为屏幕上显示的图像，后缓冲区为正在渲染的图像，渲染完成之后将两个缓冲区交换，这样可以消除不真实感。
             glfwSwapBuffers(window);
@@ -289,8 +320,8 @@ unsigned int loadTexture(const char* filepath) {
         GLCall(glTexImage2D(GL_TEXTURE_2D, 0, fromat, width, height, 0, fromat, GL_UNSIGNED_BYTE, data));
         GLCall(glGenerateMipmap(GL_TEXTURE_2D));
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);//如果透明图片边缘存在有色边框的话，可以通过改变环绕方式解决
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);//因为图片的边缘会进行插值，这样就会得到一个不是透明的值
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }

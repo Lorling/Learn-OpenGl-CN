@@ -186,9 +186,11 @@
     <Image Include="res\objects\nanosuit\leg_showroom_ddn.png" />
     <Image Include="res\objects\nanosuit\leg_showroom_spec.png" />
     <Image Include="res\textures\awesomeface.png" />
+    <Image Include="res\textures\blending_transparent_window.png" />
     <Image Include="res\textures\container.jpg" />
     <Image Include="res\textures\container2.png" />
     <Image Include="res\textures\container2_specular.png" />
+    <Image Include="res\textures\grass.png" />
     <Image Include="res\textures\marble.jpg" />
     <Image Include="res\textures\metal.png" />
   </ItemGroup>
