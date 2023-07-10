@@ -45,6 +45,9 @@ int main(void)
     }
     //将窗口的上下文设置为当前上下文
     glfwMakeContextCurrent(window);
+    //将函数注册到window的回调函数中
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
         std::cout << "Failed to initialize GLAD" << std::endl;
@@ -54,6 +57,14 @@ int main(void)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     //开启深度测试，根据z值可以让距离摄像机更近的不会被更远的覆盖
     GLCall(glEnable(GL_DEPTH_TEST));
+    //设置深度测试的运算比较符为在片段深度值小于缓冲的深度值时通过测试
+    GLCall(glDepthFunc(GL_LESS));
+    //开启模板测试
+    GLCall(glEnable(GL_STENCIL_TEST));
+    //设置所有片段都会更新模板缓冲值，并且值设置为1
+    GLCall(glStencilFunc(GL_ALWAYS, 1, 0x00FF));
+    //第一个参数为模板测试失败时采取的行为，第二个参数为模板测试通过，但深度测试失败时采取的行为，第三个参数为模板测试和深度测试都通过时采取的行为，replace为将模板值设置为glStencilFunc函数设置的ref值。
+    GLCall(glStencilOp(GL_KEEP,GL_KEEP,GL_REPLACE));
     //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_LINE));//使用线框来绘制三角形
     //GLCall(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));//切换回默认模式
     //交换间隔，交换缓冲区之前等待的帧数，通常称为v-sync,默认情况下，交换间隔为0,这里设置为1，即每帧更新一次
@@ -63,49 +74,164 @@ int main(void)
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);//宽和高从之前设置的窗口中获得
     glViewport(0, 0, width, height);//前两个参数为窗口左下角的位置，多两个为宽和高
-    //将函数注册到window的回调函数中
-    glfwSetCursorPosCallback(window, mouse_callback);
-    glfwSetScrollCallback(window, scroll_callback);
     //翻转图像y轴，因为图像0.0坐标通常在左上角，但是OpenGL0.0坐标在左下角
     stbi_set_flip_vertically_on_load(true);
     {
-        Shader shader("res/shaders/Basic.shader");
-        Model Model("res/objects/nanosuit/nanosuit.obj");
+
+        float cubeVertices[] = {
+            // 位置          // 渲染坐标
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        };
+        float planeVertices[] = {
+                                    //可以使地板纹理重复
+             5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+            -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
+            -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+
+             5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
+            -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+             5.0f, -0.5f, -5.0f,  2.0f, 2.0f
+        };
+        unsigned int vao, vbo;
+        GLCall(glGenVertexArrays(1, &vao));
+        GLCall(glGenBuffers(1, &vbo));
+        GLCall(glBindVertexArray(vao));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof cubeVertices, &cubeVertices, GL_STATIC_DRAW));
+        GLCall(glEnableVertexAttribArray(0));
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, 0));
+        GLCall(glEnableVertexAttribArray(1));
+        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, (void*)(3 * sizeof GL_FLOAT)));
+        GLCall(glBindVertexArray(0));
+
+        unsigned int planevao, planevbo;
+        GLCall(glGenVertexArrays(1, &planevao));
+        GLCall(glGenBuffers(1, &planevbo));
+        GLCall(glBindVertexArray(planevao));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, planevbo));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof planeVertices, &planeVertices, GL_STATIC_DRAW));
+        GLCall(glEnableVertexAttribArray(0));
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, 0));
+        GLCall(glEnableVertexAttribArray(1));
+        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, (void*)(3 * sizeof GL_FLOAT)));
+        GLCall(glBindVertexArray(0));
+
+        unsigned int cubeTexture = loadTexture("res/textures/marble.jpg");
+        unsigned int planeTexture = loadTexture("res/textures/metal.png");
+
+        Shader cubeShader("src/shaders/Basic.shader");
+        Shader planeShader("src/shaders/StencilSingle.shader");
+
+        cubeShader.Use();
+        cubeShader.SetUniformInt("texture1", 0);
+
         //循环直到用户退出窗口
         while (!glfwWindowShouldClose(window)) {
-            //清空上一次的渲染结果
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//可以指定使用该颜色来在清空之后 填充
-            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));//GL_DEPTH_BUFFER_BIT为清除深度缓冲
-
             float currentFrame = glfwGetTime();
             deltaTime = currentFrame - lastFrame;
             lastFrame = currentFrame;
 
+            //清空上一次的渲染结果
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//可以指定使用该颜色来在清空之后 填充
+            GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT));//GL_DEPTH_BUFFER_BIT为清除深度缓冲
+
             key_callback(window);
 
-            shader.Use();
-            
+            planeShader.Use();
             glm::mat4 model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-            model = glm::scale(model, glm::vec3(0.1f, 0.1f, 0.1f));
             glm::mat4 view = camera.GetViewMatrix();
             glm::mat4 projection = glm::perspective(glm::radians(camera.GetFov()), (float)width / height, 0.1f, 100.0f);
-            shader.SetUniformMatrix4fv("model", model);
-            shader.SetUniformMatrix4fv("view", view);
-            shader.SetUniformMatrix4fv("projection", projection);
-            shader.SetUniformVec3("dirLight.direction", dirLightDir);
-            shader.SetUniformVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-            shader.SetUniformVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-            shader.SetUniformVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
-            shader.SetUniformVec3("pointLights[0].position", 1.0f,0.0f,0.0f);
-            shader.SetUniformVec3("pointLights[0].ambient", 0.05f, 0.05f, 0.05f);
-            shader.SetUniformVec3("pointLights[0].diffuse", 0.8f, 0.8f, 0.8f);
-            shader.SetUniformVec3("pointLights[0].specular", 1.0f, 1.0f, 1.0f);
-            shader.SetUniformFloat("pointLights[0].constant", 1.0f);
-            shader.SetUniformFloat("pointLights[0].linear", 0.09f);
-            shader.SetUniformFloat("pointLights[0].quadratic", 0.032f);
+            planeShader.SetUniformMatrix4fv("view", view);
+            planeShader.SetUniformMatrix4fv("projection", projection);
 
-            Model.Draw(shader);
+            cubeShader.Use();
+            cubeShader.SetUniformMatrix4fv("view", view);
+            cubeShader.SetUniformMatrix4fv("projection", projection);
+
+            //确保在绘制地板时不会更新模板缓冲
+            GLCall(glStencilMask(0x00));
+            GLCall(glBindVertexArray(planevao));
+            GLCall(glBindTexture(GL_TEXTURE_2D, planeTexture));
+            planeShader.SetUniformMatrix4fv("model", model);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
+            GLCall(glBindVertexArray(0));
+
+            GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+            GLCall(glStencilMask(0xFF));
+            //绘制方块
+            GLCall(glBindVertexArray(vao));
+            GLCall(glActiveTexture(GL_TEXTURE0));
+            GLCall(glBindTexture(GL_TEXTURE_2D, cubeTexture));
+            model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+            cubeShader.SetUniformMatrix4fv("model", model);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+            cubeShader.SetUniformMatrix4fv("model", model);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+
+            GLCall(glStencilFunc(GL_NOTEQUAL, 1, 0xFF));
+            GLCall(glStencilMask(0x00));//禁用模板缓冲的写入
+            GLCall(glDisable(GL_DEPTH_TEST));
+            planeShader.Use();
+            float scale = 1.1f;
+            GLCall(glBindVertexArray(vao));
+            GLCall(glBindTexture(GL_TEXTURE_2D, cubeTexture));
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
+            model = glm::scale(model, glm::vec3(scale, scale, scale));
+            cubeShader.SetUniformMatrix4fv("model", model);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
+            model = glm::scale(model, glm::vec3(scale, scale, scale));
+            cubeShader.SetUniformMatrix4fv("model", model);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            
+            GLCall(glBindVertexArray(0));
+            GLCall(glStencilMask(0xFF));
+            GLCall(glStencilFunc(GL_ALWAYS, 1, 0xFF));
+            GLCall(glEnable(GL_DEPTH_TEST));
 
             //交换前缓冲区和后缓冲区，因为如果使用单缓冲区的话，生成的图像需要一步一步的生成出来，看起来不真实，使用双缓冲区的话，前缓冲区为屏幕上显示的图像，后缓冲区为正在渲染的图像，渲染完成之后将两个缓冲区交换，这样可以消除不真实感。
             glfwSwapBuffers(window);
@@ -145,4 +271,33 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera.MoustScroll(yoffset);
+}
+
+unsigned int loadTexture(const char* filepath) {
+    unsigned int id;
+    GLCall(glGenTextures(1, &id));
+
+    int width, height, nrComponents;
+    unsigned char* data = stbi_load(filepath, &width, &height, &nrComponents, 0);
+    if (data) {
+        GLenum fromat;
+        if (nrComponents == 1) fromat = GL_RED;
+        else if (nrComponents == 3) fromat = GL_RGB;
+        else if (nrComponents == 4) fromat = GL_RGBA;
+
+        GLCall(glBindTexture(GL_TEXTURE_2D, id));
+        GLCall(glTexImage2D(GL_TEXTURE_2D, 0, fromat, width, height, 0, fromat, GL_UNSIGNED_BYTE, data));
+        GLCall(glGenerateMipmap(GL_TEXTURE_2D));
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else {
+        std::cout << "Texture failed to load at path : " << filepath << std::endl;
+    }
+    stbi_image_free(data);
+
+    return id;
 }

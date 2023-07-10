@@ -155,8 +155,9 @@
   <ItemGroup>
     <None Include="res\objects\nanosuit\nanosuit.blend" />
     <None Include="res\objects\nanosuit\nanosuit.mtl" />
-    <None Include="res\shaders\Basic.shader" />
-    <None Include="res\shaders\Light.shader" />
+    <None Include="src\shaders\Basic.shader" />
+    <None Include="src\shaders\Light.shader" />
+    <None Include="src\shaders\StencilSingle.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h" />
@@ -188,6 +189,8 @@
     <Image Include="res\textures\container.jpg" />
     <Image Include="res\textures\container2.png" />
     <Image Include="res\textures\container2_specular.png" />
+    <Image Include="res\textures\marble.jpg" />
+    <Image Include="res\textures\metal.png" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\objects\nanosuit\LICENSE.txt" />

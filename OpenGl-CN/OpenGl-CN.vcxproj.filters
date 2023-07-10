@@ -41,10 +41,11 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\shaders\Basic.shader" />
-    <None Include="res\shaders\Light.shader" />
+    <None Include="src\shaders\Basic.shader" />
+    <None Include="src\shaders\Light.shader" />
     <None Include="res\objects\nanosuit\nanosuit.blend" />
     <None Include="res\objects\nanosuit\nanosuit.mtl" />
+    <None Include="src\shaders\StencilSingle.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -128,6 +129,12 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="res\objects\nanosuit\leg_showroom_spec.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\marble.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\metal.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
