@@ -19,8 +19,6 @@ void main()
 #shader fragment
 #version 330 core
 
-#define POINT_LIGHT_NUMBER 4
-
 layout(location = 0) out vec4 color;
 
 in vec2 TexCoords;
