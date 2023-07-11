@@ -211,6 +211,7 @@ int main(void)
 
         Shader cubeShader("src/shaders/Basic.shader");
         Shader skyShader("src/shaders/sky.shader");
+        Shader modelShader("src/shaders/Light.shader");
 
         skyShader.Use();
         skyShader.SetUniformInt("texture1", 0);

@@ -31,7 +31,8 @@ uniform vec3 cameraPos;
 
 void main()
 {
+    float ratio = 1.0 / 1.52;
     vec3 view = normalize(Position - cameraPos);
-    vec3 reflect = reflect(view, normalize(Normal));
+    vec3 reflect = refract(view, normalize(Normal), ratio);
     color = vec4(texture(texture1, reflect).rgb, 1.0f);
 }
