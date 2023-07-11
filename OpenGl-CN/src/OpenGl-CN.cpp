@@ -31,6 +31,7 @@ void key_callback(GLFWwindow* window);//键盘回调函数
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);//鼠标回调函数
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);//滚轮回调函数
 unsigned int loadTexture(const char* filepath);
+unsigned int loadCubemap(std::vector<std::string> faces);//加载立方体贴图
 
 int main(void)
 {
@@ -89,7 +90,6 @@ int main(void)
     //翻转图像y轴，因为图像0.0坐标通常在左上角，但是OpenGL0.0坐标在左下角
     stbi_set_flip_vertically_on_load(true);
     {
-
         float cubeVertices[] = {
             // 位置          // 渲染坐标
             -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 
@@ -134,16 +134,6 @@ int main(void)
              -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
              -0.5f,  0.5f,  0.5f,  0.0f, 0.0f 
         };
-        float planeVertices[] = {
-                                    //可以使地板纹理重复
-             5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-            -5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-            -5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-
-             5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
-             5.0f, -0.5f, -5.0f,  2.0f, 2.0f,
-            -5.0f, -0.5f, -5.0f,  0.0f, 2.0f
-        };
         float quadVertices[] = { 
             -1.0f,  1.0f,  0.0f, 1.0f,
             -1.0f, -1.0f,  0.0f, 0.0f,
@@ -152,6 +142,57 @@ int main(void)
             -1.0f,  1.0f,  0.0f, 1.0f,
              1.0f, -1.0f,  1.0f, 0.0f,
              1.0f,  1.0f,  1.0f, 1.0f
+        };
+        float skyboxVertices[] = {
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+
+            -1.0f, -1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+
+            -1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f, -1.0f,
+             1.0f,  1.0f,  1.0f,
+             1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
+
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f, -1.0f,
+             1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+             1.0f, -1.0f,  1.0f
+        };
+        std::vector<std::string> faces = {
+            "res/textures/skybox/right.jpg",
+            "res/textures/skybox/left.jpg",
+            "res/textures/skybox/top.jpg",
+            "res/textures/skybox/botton.jpg",
+            "res/textures/skybox/front.jpg",
+            "res/textures/skybox/back.jpg"
         };
 
         unsigned int vao, vbo;
@@ -166,24 +207,24 @@ int main(void)
         GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, (void*)(3 * sizeof GL_FLOAT)));
         GLCall(glBindVertexArray(0));
 
-        unsigned int planevao, planevbo;
-        GLCall(glGenVertexArrays(1, &planevao));
-        GLCall(glGenBuffers(1, &planevbo));
-        GLCall(glBindVertexArray(planevao));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, planevbo));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof planeVertices, &planeVertices,  GL_STATIC_DRAW));
-        GLCall(glEnableVertexAttribArray(0));
-        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, 0));
-        GLCall(glEnableVertexAttribArray(1));
-        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, (void*)(3 * sizeof GL_FLOAT)));
-        GLCall(glBindVertexArray(0));
-
         unsigned int screenvao, screenvbo;
         GLCall(glGenVertexArrays(1, &screenvao));
         GLCall(glGenBuffers(1, &screenvbo));
         GLCall(glBindVertexArray(screenvao));
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, screenvbo));
         GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof quadVertices, &quadVertices, GL_STATIC_DRAW));
+        GLCall(glEnableVertexAttribArray(0));
+        GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof GL_FLOAT, 0));
+        GLCall(glEnableVertexAttribArray(1));
+        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof GL_FLOAT, (void*)(2 * sizeof GL_FLOAT)));
+        GLCall(glBindVertexArray(0));
+
+        unsigned int skyvao, skyvbo;
+        GLCall(glGenVertexArrays(1, &skyvao));
+        GLCall(glGenBuffers(1, &skyvbo));
+        GLCall(glBindVertexArray(skyvao));
+        GLCall(glBindBuffer(GL_ARRAY_BUFFER, skyvbo));
+        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof skyboxVertices, &skyboxVertices, GL_STATIC_DRAW));
         GLCall(glEnableVertexAttribArray(0));
         GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof GL_FLOAT, 0));
         GLCall(glEnableVertexAttribArray(1));
@@ -221,10 +262,14 @@ int main(void)
         GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
         unsigned int cubeTexture = loadTexture("res/textures/container.jpg");
-        unsigned int planeTexture = loadTexture("res/textures/metal.png");
+        unsigned int skyTexture = loadCubemap(faces);
 
         Shader cubeShader("src/shaders/Basic.shader");
         Shader screenShader("src/shaders/StencilSingle.shader");
+        Shader skyShader("src/shaders/sky.shader");
+
+        skyShader.Use();
+        skyShader.SetUniformInt("texture1", 0);
 
         cubeShader.Use();
         cubeShader.SetUniformInt("texture1", 0);
@@ -245,14 +290,24 @@ int main(void)
             GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
 
             //清空上一次的渲染结果
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//可以指定使用该颜色来在清空之后 填充
+            //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//可以指定使用该颜色来在清空之后 填充
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));//GL_DEPTH_BUFFER_BIT为清除深度缓冲
             GLCall(glEnable(GL_DEPTH_TEST));
 
-            cubeShader.Use();
             glm::mat4 model = glm::mat4(1.0f);
             glm::mat4 view = camera.GetViewMatrix();
             glm::mat4 projection = glm::perspective(glm::radians(camera.GetFov()), (float)width / height, 0.1f, 100.0f);
+
+            GLCall(glDepthMask(GL_FALSE));
+            skyShader.Use();
+            skyShader.SetUniformMatrix4fv("view", glm::mat4(glm::mat3(camera.GetViewMatrix())));
+            skyShader.SetUniformMatrix4fv("projection", projection);
+            GLCall(glBindVertexArray(skyvao));
+            GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, skyTexture));
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            GLCall(glDepthMask(GL_TRUE));
+
+            cubeShader.Use();
             cubeShader.SetUniformMatrix4fv("view", view);
             cubeShader.SetUniformMatrix4fv("projection", projection);
             GLCall(glBindVertexArray(vao));
@@ -266,11 +321,6 @@ int main(void)
             cubeShader.SetUniformMatrix4fv("model", model);
             GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
 
-            GLCall(glBindVertexArray(planevao));
-            GLCall(glBindTexture(GL_TEXTURE_2D, planeTexture));
-            model = glm::mat4(1.0f);
-            cubeShader.SetUniformMatrix4fv("model", model);
-            GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
             GLCall(glBindVertexArray(0));
             GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
@@ -350,6 +400,32 @@ unsigned int loadTexture(const char* filepath) {
         std::cout << "Texture failed to load at path : " << filepath << std::endl;
     }
     stbi_image_free(data);
+
+    return id;
+}
+
+unsigned int loadCubemap(std::vector<std::string> faces)
+{
+    unsigned int id;
+    GLCall(glGenTextures(1, &id));
+    GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, id));
+
+    int width, height, numberChannels;
+    for (unsigned int i = 0;i < faces.size(); i++) {
+        unsigned char* data = stbi_load(faces[i].c_str(), &width, &height, &numberChannels, 0);
+        if (data) {
+            GLCall(glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data));
+        }
+        else {
+            std::cout << "fail at " << faces[i] << std::endl;
+        }
+        stbi_image_free(data);
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
     return id;
 }

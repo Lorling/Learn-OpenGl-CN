@@ -46,6 +46,7 @@
     <None Include="res\objects\nanosuit\nanosuit.blend" />
     <None Include="res\objects\nanosuit\nanosuit.mtl" />
     <None Include="src\shaders\StencilSingle.shader" />
+    <None Include="src\shaders\sky.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -141,6 +142,24 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="res\textures\grass.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\back.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\bottom.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\front.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\left.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\right.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\skybox\top.jpg">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>
