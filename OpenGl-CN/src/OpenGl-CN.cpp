@@ -61,7 +61,7 @@ int main(void)
     //开启深度测试，根据z值可以让距离摄像机更近的不会被更远的覆盖
     GLCall(glEnable(GL_DEPTH_TEST));
     //设置深度测试的运算比较符为在片段深度值小于缓冲的深度值时通过测试
-    GLCall(glDepthFunc(GL_LESS));
+    GLCall(glDepthFunc(GL_LEQUAL));
     //开启模板测试
     //GLCall(glEnable(GL_STENCIL_TEST));
     //设置所有片段都会更新模板缓冲值，并且值设置为1
@@ -73,7 +73,7 @@ int main(void)
     //设定混合函数
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
     //开启面剔除
-    GLCall(glEnable(GL_CULL_FACE));
+    //GLCall(glEnable(GL_CULL_FACE));
     //设置正向面为顺时针，默认值为GL_CCW逆时针
     //GLCall(glFrontFace(GL_CW));
     //设置剔除的面,默认为背向面GL_BACK,FRONT为前向
@@ -88,60 +88,50 @@ int main(void)
     glfwGetFramebufferSize(window, &width, &height);//宽和高从之前设置的窗口中获得
     glViewport(0, 0, width, height);//前两个参数为窗口左下角的位置，多两个为宽和高
     //翻转图像y轴，因为图像0.0坐标通常在左上角，但是OpenGL0.0坐标在左下角
-    stbi_set_flip_vertically_on_load(true);
+    //stbi_set_flip_vertically_on_load(true);
     {
         float cubeVertices[] = {
-            // 位置          // 渲染坐标
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
-             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,     
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 
-            // Front face
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
-             0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 
-             0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
-            // Left face
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 
-            // Right face
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
-             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  
-             0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
-             0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 
-             0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 
-             // Bottom face
-             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-              0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-              0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-             -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-             -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-             // Top face
-             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-              0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-              0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-             -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-             -0.5f,  0.5f,  0.5f,  0.0f, 0.0f 
-        };
-        float quadVertices[] = { 
-            -1.0f,  1.0f,  0.0f, 1.0f,
-            -1.0f, -1.0f,  0.0f, 0.0f,
-             1.0f, -1.0f,  1.0f, 0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+             0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+             0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
 
-            -1.0f,  1.0f,  0.0f, 1.0f,
-             1.0f, -1.0f,  1.0f, 0.0f,
-             1.0f,  1.0f,  1.0f, 1.0f
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+             0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+             0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+             0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+             0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+             0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+             0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+             0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+             0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+             0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+             0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+             0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+             0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
         };
         float skyboxVertices[] = {
             -1.0f,  1.0f, -1.0f,
@@ -190,7 +180,7 @@ int main(void)
             "res/textures/skybox/right.jpg",
             "res/textures/skybox/left.jpg",
             "res/textures/skybox/top.jpg",
-            "res/textures/skybox/botton.jpg",
+            "res/textures/skybox/bottom.jpg",
             "res/textures/skybox/front.jpg",
             "res/textures/skybox/back.jpg"
         };
@@ -202,21 +192,9 @@ int main(void)
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, vbo));
         GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof cubeVertices, &cubeVertices, GL_STATIC_DRAW));
         GLCall(glEnableVertexAttribArray(0));
-        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, 0));
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof GL_FLOAT, 0));
         GLCall(glEnableVertexAttribArray(1));
-        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof GL_FLOAT, (void*)(3 * sizeof GL_FLOAT)));
-        GLCall(glBindVertexArray(0));
-
-        unsigned int screenvao, screenvbo;
-        GLCall(glGenVertexArrays(1, &screenvao));
-        GLCall(glGenBuffers(1, &screenvbo));
-        GLCall(glBindVertexArray(screenvao));
-        GLCall(glBindBuffer(GL_ARRAY_BUFFER, screenvbo));
-        GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof quadVertices, &quadVertices, GL_STATIC_DRAW));
-        GLCall(glEnableVertexAttribArray(0));
-        GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof GL_FLOAT, 0));
-        GLCall(glEnableVertexAttribArray(1));
-        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof GL_FLOAT, (void*)(2 * sizeof GL_FLOAT)));
+        GLCall(glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof GL_FLOAT, (void*)(3 * sizeof GL_FLOAT)));
         GLCall(glBindVertexArray(0));
 
         unsigned int skyvao, skyvbo;
@@ -226,46 +204,12 @@ int main(void)
         GLCall(glBindBuffer(GL_ARRAY_BUFFER, skyvbo));
         GLCall(glBufferData(GL_ARRAY_BUFFER, sizeof skyboxVertices, &skyboxVertices, GL_STATIC_DRAW));
         GLCall(glEnableVertexAttribArray(0));
-        GLCall(glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof GL_FLOAT, 0));
-        GLCall(glEnableVertexAttribArray(1));
-        GLCall(glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof GL_FLOAT, (void*)(2 * sizeof GL_FLOAT)));
+        GLCall(glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof GL_FLOAT, 0));
         GLCall(glBindVertexArray(0));
 
-        unsigned int fbo;//帧缓冲
-        GLCall(glGenFramebuffers(1, &fbo));
-        GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
-
-        unsigned int texture;
-        GLCall(glGenTextures(1, &texture));
-        GLCall(glBindTexture(GL_TEXTURE_2D, texture));
-
-        GLCall(glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL));
-        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR));
-        GLCall(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR));
-        //将纹理附加到帧缓冲上，第一个参数为帧缓冲的目标，第二个参数为我们想附加的参数类型，当前为颜色附件，第三个为希望附加的纹理类型，第四个为纹理本身，第五个为多级渐远纹理的级别
-        //除了颜色附件之外，我们还可以附加一个深度和模板缓冲纹理到帧缓冲对象中。要附加深度缓冲的话，我们将附件类型设置为GL_DEPTH_ATTACHMENT。注意纹理的格式(Format)和内部格式(Internalformat)类型将变为GL_DEPTH_COMPONENT，来反映深度缓冲的储存格式。要附加模板缓冲的话，你要将第二个参数设置为GL_STENCIL_ATTACHMENT，并将纹理的格式设定为GL_STENCIL_INDEX。
-        GLCall(glBindTexture(GL_TEXTURE_2D, 0));
-        GLCall(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture, 0));
-
-        unsigned int rbo;//渲染缓冲对象
-        GLCall(glGenRenderbuffers(1, &rbo));
-        GLCall(glBindRenderbuffer(GL_RENDERBUFFER, rbo));
-        GLCall(glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600));//GL_DEPTH24_STENCIL8表示封装了24位的深度和8位的模板缓冲
-        GLCall(glBindRenderbuffer(GL_RENDERBUFFER, 0));
-        GLCall(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo));//将渲染对象附加到帧缓冲中
-
-        //检测帧缓冲是否完整 
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-            std::cout << "fail at framebuffer" << std::endl;
-            return 0;
-        }
-        GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-        unsigned int cubeTexture = loadTexture("res/textures/container.jpg");
         unsigned int skyTexture = loadCubemap(faces);
 
         Shader cubeShader("src/shaders/Basic.shader");
-        Shader screenShader("src/shaders/StencilSingle.shader");
         Shader skyShader("src/shaders/sky.shader");
 
         skyShader.Use();
@@ -273,9 +217,6 @@ int main(void)
 
         cubeShader.Use();
         cubeShader.SetUniformInt("texture1", 0);
-
-        screenShader.Use();
-        screenShader.SetUniformInt("texture1", 0);
 
         //循环直到用户退出窗口
         while (!glfwWindowShouldClose(window)) {
@@ -286,18 +227,25 @@ int main(void)
             //输入
             key_callback(window);
 
-            //绑定到帧缓冲并绘制场景
-            GLCall(glBindFramebuffer(GL_FRAMEBUFFER, fbo));
-
             //清空上一次的渲染结果
-            //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//可以指定使用该颜色来在清空之后 填充
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//可以指定使用该颜色来在清空之后 填充
             GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));//GL_DEPTH_BUFFER_BIT为清除深度缓冲
-            GLCall(glEnable(GL_DEPTH_TEST));
 
             glm::mat4 model = glm::mat4(1.0f);
             glm::mat4 view = camera.GetViewMatrix();
             glm::mat4 projection = glm::perspective(glm::radians(camera.GetFov()), (float)width / height, 0.1f, 100.0f);
 
+            cubeShader.Use();
+            cubeShader.SetUniformMatrix4fv("model", model);
+            cubeShader.SetUniformMatrix4fv("view", view);
+            cubeShader.SetUniformMatrix4fv("projection", projection);
+            cubeShader.SetUniformVec3("cameraPos", camera.GetPosition());
+            GLCall(glBindVertexArray(vao));
+            GLCall(glActiveTexture(GL_TEXTURE0));
+            GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, skyTexture));
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            GLCall(glBindVertexArray(0));
+            
             GLCall(glDepthMask(GL_FALSE));
             skyShader.Use();
             skyShader.SetUniformMatrix4fv("view", glm::mat4(glm::mat3(camera.GetViewMatrix())));
@@ -307,32 +255,6 @@ int main(void)
             GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
             GLCall(glDepthMask(GL_TRUE));
 
-            cubeShader.Use();
-            cubeShader.SetUniformMatrix4fv("view", view);
-            cubeShader.SetUniformMatrix4fv("projection", projection);
-            GLCall(glBindVertexArray(vao));
-            GLCall(glActiveTexture(GL_TEXTURE0));
-            GLCall(glBindTexture(GL_TEXTURE_2D, cubeTexture));
-            model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
-            cubeShader.SetUniformMatrix4fv("model", model);
-            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-            model = glm::mat4(1.0f);
-            model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-            cubeShader.SetUniformMatrix4fv("model", model);
-            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
-
-            GLCall(glBindVertexArray(0));
-            GLCall(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
-            GLCall(glClearColor(1.0f, 1.0f, 1.0f, 1.0f));
-            GLCall(glClear(GL_COLOR_BUFFER_BIT));
-            GLCall(glDisable(GL_DEPTH_TEST));
-
-            screenShader.Use();
-            GLCall(glBindVertexArray(screenvao));
-            GLCall(glBindTexture(GL_TEXTURE_2D, texture));
-            GLCall(glDrawArrays(GL_TRIANGLES, 0, 6));
-            
             GLCall(glBindVertexArray(0));
 
             //交换前缓冲区和后缓冲区，因为如果使用单缓冲区的话，生成的图像需要一步一步的生成出来，看起来不真实，使用双缓冲区的话，前缓冲区为屏幕上显示的图像，后缓冲区为正在渲染的图像，渲染完成之后将两个缓冲区交换，这样可以消除不真实感。
