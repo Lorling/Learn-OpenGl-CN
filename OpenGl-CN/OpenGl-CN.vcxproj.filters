@@ -49,6 +49,10 @@
     <None Include="src\shaders\sky.shader" />
     <None Include="res\objects\nanosuit_reflection\nanosuit.blend" />
     <None Include="res\objects\nanosuit_reflection\nanosuit.mtl" />
+    <None Include="src\shaders\red.shader" />
+    <None Include="src\shaders\green.shader" />
+    <None Include="src\shaders\yellow.shader" />
+    <None Include="src\shaders\blue.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">

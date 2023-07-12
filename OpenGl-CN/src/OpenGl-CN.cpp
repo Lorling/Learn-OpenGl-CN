@@ -219,6 +219,32 @@ int main(void)
         cubeShader.Use();
         cubeShader.SetUniformInt("texture1", 0);
 
+        Shader redShader("src/shaders/red.shader");
+        Shader greenShader("src/shaders/green.shader");
+        Shader blueShader("src/shaders/blue.shader");
+        Shader yellowShader("src/shaders/yellow.shader");
+
+        //获取uniform块的索引
+        unsigned int uniformBlockIndexRed = glGetUniformBlockIndex(redShader.GetProgramID(), "Matrices");
+        unsigned int uniformBlockIndexGreen = glGetUniformBlockIndex(greenShader.GetProgramID(), "Matrices");
+        unsigned int uniformBlockIndexBlue = glGetUniformBlockIndex(blueShader.GetProgramID(), "Matrices");
+        unsigned int uniformBlockIndexYellow = glGetUniformBlockIndex(yellowShader.GetProgramID(), "Matrices");
+
+        //将每个uniform块设置位绑定点0
+        glUniformBlockBinding(redShader.GetProgramID(), uniformBlockIndexRed, 0);
+        glUniformBlockBinding(greenShader.GetProgramID(), uniformBlockIndexGreen, 0);
+        glUniformBlockBinding(blueShader.GetProgramID(), uniformBlockIndexBlue, 0);
+        glUniformBlockBinding(yellowShader.GetProgramID(), uniformBlockIndexYellow, 0);
+
+        //创建一个uniform缓冲对象
+        unsigned int ubo;
+        GLCall(glGenBuffers(1, &ubo));
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
+        GLCall(glBufferData(GL_UNIFORM_BUFFER, 2 * sizeof glm::mat4, NULL, GL_STATIC_DRAW));//创建一个空的内存，大小为两个mat4
+        GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+        //将uniform缓冲对象绑定到绑定点0
+        glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 2 * sizeof glm::mat4);
+
         //循环直到用户退出窗口
         while (!glfwWindowShouldClose(window)) {
             //计算每帧时间
@@ -235,15 +261,32 @@ int main(void)
             glm::mat4 model = glm::mat4(1.0f);
             glm::mat4 view = camera.GetViewMatrix();
             glm::mat4 projection = glm::perspective(glm::radians(camera.GetFov()), (float)width / height, 0.1f, 100.0f);
+            GLCall(glBindBuffer(GL_UNIFORM_BUFFER, ubo));
+            //将两个矩阵填充进缓冲中
+            glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof glm::mat4, glm::value_ptr(projection));//第二个为偏移量，第三个数据大小，第四个为数据本身
+            glBufferSubData(GL_UNIFORM_BUFFER, sizeof glm::mat4, sizeof glm::mat4, glm::value_ptr(view));
+            GLCall(glBindBuffer(GL_UNIFORM_BUFFER, 0));
 
-            cubeShader.Use();
-            cubeShader.SetUniformMatrix4fv("model", model);
-            cubeShader.SetUniformMatrix4fv("view", view);
-            cubeShader.SetUniformMatrix4fv("projection", projection);
-            cubeShader.SetUniformVec3("cameraPos", camera.GetPosition());
             GLCall(glBindVertexArray(vao));
-            GLCall(glActiveTexture(GL_TEXTURE0));
-            GLCall(glBindTexture(GL_TEXTURE_CUBE_MAP, skyTexture));
+            redShader.Use();
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(-0.75f, 0.75f, 0.0f));
+            redShader.SetUniformMatrix4fv("model", model);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            greenShader.Use();
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.75f, 0.75f, 0.0f));
+            greenShader.SetUniformMatrix4fv("model", model);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            blueShader.Use();
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(0.75f, -0.75f, 0.0f));
+            blueShader.SetUniformMatrix4fv("model", model);
+            GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
+            yellowShader.Use();
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, glm::vec3(-0.75f, -0.75f, 0.0f));
+            yellowShader.SetUniformMatrix4fv("model", model);
             GLCall(glDrawArrays(GL_TRIANGLES, 0, 36));
             GLCall(glBindVertexArray(0));
             

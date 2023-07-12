@@ -158,9 +158,13 @@
     <None Include="res\objects\nanosuit_reflection\nanosuit.blend" />
     <None Include="res\objects\nanosuit_reflection\nanosuit.mtl" />
     <None Include="src\shaders\Basic.shader" />
+    <None Include="src\shaders\blue.shader" />
+    <None Include="src\shaders\green.shader" />
     <None Include="src\shaders\Light.shader" />
+    <None Include="src\shaders\red.shader" />
     <None Include="src\shaders\sky.shader" />
     <None Include="src\shaders\StencilSingle.shader" />
+    <None Include="src\shaders\yellow.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h" />
