@@ -15,62 +15,63 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\OpenGl-CN.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Renderer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Shader.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="res\stb_image\stb_image.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Camera.cpp">
+    <ClCompile Include="Breakout\BreakOut.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\glad.c">
+    <ClCompile Include="Breakout\Game.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mesh.cpp">
+    <ClCompile Include="Breakout\Texture.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Model.cpp">
+    <ClCompile Include="Breakout\Renderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Breakout\Shader.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Breakout\SpriteRenderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Breakout\glad.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Breakout\ResourceManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="src\shaders\Basic.shader" />
-    <None Include="src\shaders\Light.shader" />
     <None Include="res\objects\nanosuit\nanosuit.blend" />
     <None Include="res\objects\nanosuit\nanosuit.mtl" />
-    <None Include="src\shaders\StencilSingle.shader" />
-    <None Include="src\shaders\sky.shader" />
     <None Include="res\objects\nanosuit_reflection\nanosuit.blend" />
     <None Include="res\objects\nanosuit_reflection\nanosuit.mtl" />
-    <None Include="src\shaders\red.shader" />
-    <None Include="src\shaders\green.shader" />
-    <None Include="src\shaders\yellow.shader" />
-    <None Include="src\shaders\blue.shader" />
+    <None Include="Breakout\shaders\Sprite.shader">
+      <Filter>源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\Renderer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Shader.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="res\stb_image\stb_image.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Camera.h">
+    <ClInclude Include="Breakout\Game.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mesh.h">
+    <ClInclude Include="Breakout\Texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="src\Model.h">
+    <ClInclude Include="Breakout\Renderer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\Shader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\SpriteRenderer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\ResourceManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

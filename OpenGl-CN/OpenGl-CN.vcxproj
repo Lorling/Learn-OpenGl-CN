@@ -143,36 +143,33 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Breakout\glad.c" />
+    <ClCompile Include="Breakout\Renderer.cpp" />
+    <ClCompile Include="Breakout\ResourceManager.cpp" />
+    <ClCompile Include="Breakout\Shader.cpp" />
+    <ClCompile Include="Breakout\SpriteRenderer.cpp" />
     <ClCompile Include="res\stb_image\stb_image.cpp" />
-    <ClCompile Include="src\Camera.cpp" />
-    <ClCompile Include="src\glad.c" />
-    <ClCompile Include="src\Mesh.cpp" />
-    <ClCompile Include="src\Model.cpp" />
-    <ClCompile Include="src\OpenGl-CN.cpp" />
-    <ClCompile Include="src\Renderer.cpp" />
-    <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="Breakout\BreakOut.cpp" />
+    <ClCompile Include="Breakout\Game.cpp" />
+    <None Include="Breakout\shaders\Sprite.shader">
+      <FileType>Document</FileType>
+    </None>
+    <ClCompile Include="Breakout\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\objects\nanosuit\nanosuit.blend" />
     <None Include="res\objects\nanosuit\nanosuit.mtl" />
     <None Include="res\objects\nanosuit_reflection\nanosuit.blend" />
     <None Include="res\objects\nanosuit_reflection\nanosuit.mtl" />
-    <None Include="src\shaders\Basic.shader" />
-    <None Include="src\shaders\blue.shader" />
-    <None Include="src\shaders\green.shader" />
-    <None Include="src\shaders\Light.shader" />
-    <None Include="src\shaders\red.shader" />
-    <None Include="src\shaders\sky.shader" />
-    <None Include="src\shaders\StencilSingle.shader" />
-    <None Include="src\shaders\yellow.shader" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Breakout\Renderer.h" />
+    <ClInclude Include="Breakout\Shader.h" />
+    <ClInclude Include="Breakout\SpriteRenderer.h" />
+    <ClInclude Include="Breakout\ResourceManager.h" />
     <ClInclude Include="res\stb_image\stb_image.h" />
-    <ClInclude Include="src\Camera.h" />
-    <ClInclude Include="src\Mesh.h" />
-    <ClInclude Include="src\Model.h" />
-    <ClInclude Include="src\Renderer.h" />
-    <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="Breakout\Game.h" />
+    <ClInclude Include="Breakout\Texture.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\objects\nanosuit\arm_dif.png" />
