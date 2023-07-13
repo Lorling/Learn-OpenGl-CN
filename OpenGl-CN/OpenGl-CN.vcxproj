@@ -227,6 +227,7 @@
     <Image Include="res\textures\grass.png" />
     <Image Include="res\textures\marble.jpg" />
     <Image Include="res\textures\metal.png" />
+    <Image Include="res\textures\paddle.png" />
     <Image Include="res\textures\skybox\back.jpg" />
     <Image Include="res\textures\skybox\bottom.jpg" />
     <Image Include="res\textures\skybox\front.jpg" />

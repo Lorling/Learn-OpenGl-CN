@@ -67,7 +67,7 @@ void GameLevel::Init(std::vector<std::vector<GLuint>> tileData, GLuint levelWidt
 			if (tileData[i][j] == 1) {
 				//不可被破坏
 				obj.IsSolid = GL_TRUE;
-				obj.SetSprite(ResourceManager::GetTexture("block_solid"));
+				//obj.SetSprite(ResourceManager::GetTexture("block_solid"));
 			}
 			else if (tileData[i][j] > 1) {
 				//可以被破坏，不同颜色的砖块
@@ -83,7 +83,8 @@ void GameLevel::Init(std::vector<std::vector<GLuint>> tileData, GLuint levelWidt
 				obj.SetColor(color);
 				obj.SetSprite(ResourceManager::GetTexture("block"));
 			}
-			Bricks.push_back(obj);
+			
+			if(tileData[i][j] != 0) Bricks.push_back(obj);
 		}
 	}
 }

@@ -1,16 +1,13 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-#include "Renderer.h"
 #include "Game.h"
 
 #include <iostream>
 
-void key_callback(GLFWwindow* window);//键盘回调函数
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
+
+Game BreakOut(800, 600);
 
 int main() 
 {
@@ -33,13 +30,14 @@ int main()
         return -1;
     }
 
+    GLCall(glfwSetKeyCallback(window, key_callback));
+
     GLCall(glViewport(0, 0, 800, 600));//第一个和第二个指定了屏幕的左下角位置
 
     GLCall(glEnable(GL_CULL_FACE));
     GLCall(glEnable(GL_BLEND));
     GLCall(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 
-    Game BreakOut(800, 600);
     BreakOut.Init();
 
     GLfloat deltaTime = 0.0f;//当前帧与上一帧的时间差
@@ -50,8 +48,6 @@ int main()
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
         glfwPollEvents();
-
-        key_callback(window);
 
         BreakOut.ProccessInput(deltaTime);
 
@@ -69,9 +65,17 @@ int main()
     return 0;
 }
 
-void key_callback(GLFWwindow* window) {
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     //如果用户按下esc键，将窗口的WindowShouldClose，既关闭窗口
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+    if (key >= 0 && key < 1024) {
+        if (action == GLFW_PRESS) {//按下
+            BreakOut.Keys[key] = true;
+        }
+        else if (action == GLFW_RELEASE) {
+            BreakOut.Keys[key] = false;
+        }
     }
 }

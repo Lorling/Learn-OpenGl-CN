@@ -259,6 +259,9 @@
     <Image Include="res\textures\block_solid.png">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="res\textures\paddle.png">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\objects\nanosuit\LICENSE.txt" />
