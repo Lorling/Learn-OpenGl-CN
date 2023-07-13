@@ -148,6 +148,8 @@
     <ClCompile Include="Breakout\ResourceManager.cpp" />
     <ClCompile Include="Breakout\Shader.cpp" />
     <ClCompile Include="Breakout\SpriteRenderer.cpp" />
+    <ClCompile Include="Breakout\GameObject.cpp" />
+    <ClCompile Include="Breakout\GameLevel.cpp" />
     <ClCompile Include="res\stb_image\stb_image.cpp" />
     <ClCompile Include="Breakout\BreakOut.cpp" />
     <ClCompile Include="Breakout\Game.cpp" />
@@ -167,6 +169,8 @@
     <ClInclude Include="Breakout\Shader.h" />
     <ClInclude Include="Breakout\SpriteRenderer.h" />
     <ClInclude Include="Breakout\ResourceManager.h" />
+    <ClInclude Include="Breakout\GameObject.h" />
+    <ClInclude Include="Breakout\GameLevel.h" />
     <ClInclude Include="res\stb_image\stb_image.h" />
     <ClInclude Include="Breakout\Game.h" />
     <ClInclude Include="Breakout\Texture.h" />
@@ -213,7 +217,10 @@
     <Image Include="res\objects\nanosuit_reflection\leg_showroom_refl.png" />
     <Image Include="res\objects\nanosuit_reflection\leg_showroom_spec.png" />
     <Image Include="res\textures\awesomeface.png" />
+    <Image Include="res\textures\background.jpg" />
     <Image Include="res\textures\blending_transparent_window.png" />
+    <Image Include="res\textures\block.png" />
+    <Image Include="res\textures\block_solid.png" />
     <Image Include="res\textures\container.jpg" />
     <Image Include="res\textures\container2.png" />
     <Image Include="res\textures\container2_specular.png" />
@@ -228,6 +235,10 @@
     <Image Include="res\textures\skybox\top.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="res\levels\four.txt" />
+    <Text Include="res\levels\one.txt" />
+    <Text Include="res\levels\three.txt" />
+    <Text Include="res\levels\two.txt" />
     <Text Include="res\objects\nanosuit\LICENSE.txt" />
     <Text Include="res\objects\nanosuit_reflection\LICENSE.txt" />
   </ItemGroup>

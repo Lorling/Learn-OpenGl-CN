@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "Shader.h"
 #include "SpriteRenderer.h"
+#include "GameLevel.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -15,6 +16,8 @@ public:
 	GameState State;
 	GLboolean Keys[1024];
 	GLfloat Width, Height;
+	std::vector<GameLevel> levels;
+	GLuint level;
 
 	Game(GLfloat width, GLfloat height);
 	~Game();

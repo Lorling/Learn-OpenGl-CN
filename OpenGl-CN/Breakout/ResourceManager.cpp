@@ -15,8 +15,10 @@ Shader ResourceManager::LoadShader(const GLchar* filepath, std::string name)
 
 Shader ResourceManager::GetShader(std::string name)
 {
-    if (Shaders.find(name) == Shaders.end())
+    if (Shaders.find(name) == Shaders.end()) {
+        std::cout << "failed to find : " << name << std::endl;
         ASSERT(0);
+    }
     return Shaders[name];
 }
 
@@ -28,8 +30,10 @@ Texture2D ResourceManager::LoadTexture(const GLchar* filepath, std::string name)
 
 Texture2D ResourceManager::GetTexture(std::string name)
 {
-    if (Textures.find(name) == Textures.end())
+    if (Textures.find(name) == Textures.end()) {
+        std::cout << "failed to find : " << name << std::endl;
         ASSERT(0);
+    }
     return Textures[name];
 }
 

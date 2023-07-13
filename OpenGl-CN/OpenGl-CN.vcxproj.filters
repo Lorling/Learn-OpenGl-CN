@@ -42,6 +42,12 @@
     <ClCompile Include="Breakout\ResourceManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Breakout\GameObject.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Breakout\GameLevel.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\objects\nanosuit\nanosuit.blend" />
@@ -72,6 +78,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Breakout\ResourceManager.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\GameObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\GameLevel.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -238,10 +250,23 @@
     <Image Include="res\objects\nanosuit_reflection\leg_showroom_spec.png">
       <Filter>资源文件</Filter>
     </Image>
+    <Image Include="res\textures\background.jpg">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\block.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\block_solid.png">
+      <Filter>资源文件</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Text Include="res\objects\nanosuit\LICENSE.txt" />
     <Text Include="res\objects\nanosuit_reflection\LICENSE.txt" />
+    <Text Include="res\levels\one.txt" />
+    <Text Include="res\levels\two.txt" />
+    <Text Include="res\levels\three.txt" />
+    <Text Include="res\levels\four.txt" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="res\objects\nanosuit\nanosuit.obj" />
