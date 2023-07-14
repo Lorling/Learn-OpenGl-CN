@@ -9,9 +9,9 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 Game BreakOut(800, 600);
 
-int main() 
+int main()
 {
-	glfwInit();
+    glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);//设置主版本
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);//设置次版本
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);//使用核心模式
@@ -53,7 +53,7 @@ int main()
 
         BreakOut.Update(deltaTime);
 
-        GLCall(glClearColor(0.0f, 0.0f, 0.0f,1.0f));
+        GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
         GLCall(glClear(GL_COLOR_BUFFER_BIT));
 
         BreakOut.Render();

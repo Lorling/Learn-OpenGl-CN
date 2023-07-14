@@ -143,6 +143,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Breakout\BallObject.cpp" />
+    <ClCompile Include="Breakout\Breakout.cpp" />
     <ClCompile Include="Breakout\glad.c" />
     <ClCompile Include="Breakout\Renderer.cpp" />
     <ClCompile Include="Breakout\ResourceManager.cpp" />
@@ -151,7 +153,6 @@
     <ClCompile Include="Breakout\GameObject.cpp" />
     <ClCompile Include="Breakout\GameLevel.cpp" />
     <ClCompile Include="res\stb_image\stb_image.cpp" />
-    <ClCompile Include="Breakout\BreakOut.cpp" />
     <ClCompile Include="Breakout\Game.cpp" />
     <None Include="Breakout\shaders\Sprite.shader">
       <FileType>Document</FileType>
@@ -165,6 +166,7 @@
     <None Include="res\objects\nanosuit_reflection\nanosuit.mtl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Breakout\BallObject.h" />
     <ClInclude Include="Breakout\Renderer.h" />
     <ClInclude Include="Breakout\Shader.h" />
     <ClInclude Include="Breakout\SpriteRenderer.h" />
