@@ -1,6 +1,5 @@
 #include "Game.h"
 #include "ResourceManager.h"
-#include "BallObject.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
 
@@ -117,7 +116,7 @@ void Game::DoCollisions()
 {
 	for (GameObject& box : levels[level].Bricks) {
 		if (!box.Destroyed) {
-			if (CheckCollision(box, *Ball)) {
+			if (CheckCollision(*Ball, box)) {
 				if (!box.IsSolid) {
 					box.Destroyed = GL_TRUE;
 				}
@@ -128,11 +127,27 @@ void Game::DoCollisions()
 
 GLboolean Game::CheckCollision(GameObject& one, GameObject& two)
 {
-	//x轴碰撞 检测两个物体最下面的边是不是大于另一个物体上面的边
-	//没有判断物体包裹在另一个物体里面的情况
-	bool collisionX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
-	//y轴碰撞
-	bool collisionY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
-	//只有两个轴都碰撞才算碰撞
-	return collisionX & collisionY;
+	// x轴方向碰撞
+	bool collisionX = one.Position.x + one.Size.x >= two.Position.x || two.Position.x + two.Size.x >= one.Position.x;
+	// y轴方向碰撞
+	bool collisionY = one.Position.y + one.Size.y >= two.Position.y || two.Position.y + two.Size.y >= one.Position.y;
+	// 只有两个轴向都发生碰撞时才算碰撞
+	return collisionX && collisionY;
+}
+
+GLboolean Game::CheckCollision(BallObject& one, GameObject& two)
+{
+	//获取圆心
+	glm::vec2 center(one.Position + one.Radius);
+	//获取AABB的信息
+	glm::vec2 aabb_half_extents(two.Size.x / 2, two.Size.y / 2);
+	glm::vec2 aabb_center(two.Position + aabb_half_extents);
+	//获取两个中心的矢量差
+	glm::vec2 difference = center - aabb_center;
+	glm::vec2 clamped = glm::clamp(difference, -aabb_half_extents, aabb_half_extents);
+	//中心加上clamped就是AABB上距离圆最近的点
+	glm::vec2 closest = aabb_center + clamped;
+	difference = center - closest;
+	//如果距离小于等于半径则说明撞到了
+	return glm::length(difference) <= one.Radius;
 }

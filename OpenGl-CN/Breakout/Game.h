@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "SpriteRenderer.h"
 #include "GameLevel.h"
+#include "BallObject.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -31,4 +32,5 @@ public:
 	void DoCollisions();
 
 	GLboolean CheckCollision(GameObject& one, GameObject& two);
+	GLboolean CheckCollision(BallObject& one, GameObject& two);
 };
