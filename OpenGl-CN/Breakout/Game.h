@@ -12,6 +12,15 @@ enum GameState {
 	GMAE_WIN
 };
 
+enum Direction {
+	UP,
+	DOWN,
+	RIGHT,
+	LEFT
+};
+
+typedef std::tuple<GLboolean, Direction, glm::vec2> Collision;
+
 class Game {
 public:
 	GameState State;
@@ -32,5 +41,10 @@ public:
 	void DoCollisions();
 
 	GLboolean CheckCollision(GameObject& one, GameObject& two);
-	GLboolean CheckCollision(BallObject& one, GameObject& two);
+	Collision CheckCollision(BallObject& one, GameObject& two);
+
+	Direction VectorDirection(glm::vec2 target);
+
+	void ResetLevel();
+	void ResetPlayer();
 };

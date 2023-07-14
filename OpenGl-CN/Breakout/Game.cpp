@@ -24,6 +24,8 @@ Game::Game(GLfloat width, GLfloat height) :
 Game::~Game()
 {
 	delete Renderer;
+	delete Player;
+	delete Ball;
 }
 
 void Game::Init()
@@ -96,6 +98,11 @@ void Game::Update(GLfloat dt)
 	Ball->Move(dt, Width);
 	//检测碰撞
 	DoCollisions();
+	//检测球碰撞底部边界死亡
+	if (Ball->Position.y >= Height) {
+		ResetLevel();
+		ResetPlayer();
+	}
 }
 
 void Game::Render()
@@ -114,14 +121,57 @@ void Game::Render()
 
 void Game::DoCollisions()
 {
+	//球与砖块的碰撞
 	for (GameObject& box : levels[level].Bricks) {
 		if (!box.Destroyed) {
-			if (CheckCollision(*Ball, box)) {
+			Collision collision = CheckCollision(*Ball, box);
+			if (std::get<0>(collision)) {//如果碰撞到的话
+				//如果砖块不是实心就销毁
 				if (!box.IsSolid) {
 					box.Destroyed = GL_TRUE;
 				}
+				//碰撞处理
+				Direction dir = std::get<1>(collision);
+				glm::vec2 diff_vector = std::get<2>(collision);
+				//水平碰撞
+				if (dir == LEFT || dir == RIGHT) {
+					//反转水平速度
+					Ball->Velocity.x = -Ball->Velocity.x;
+					//重定位，避免球挤在砖块内
+					GLfloat penetration = Ball->Radius - glm::length(diff_vector);
+					if (dir == LEFT)
+						Ball->Position.x += penetration;
+					else
+						Ball->Position.x -= penetration;
+				}
+				//垂直碰撞
+				else {
+					Ball->Velocity.y = -Ball->Velocity.y;
+					GLfloat penetration = Ball->Radius - glm::length(diff_vector);
+					if (dir == UP)
+						Ball->Position.y -= penetration;
+					else
+						Ball->Position.y += penetration;
+				}
 			}
 		}
+	}
+	//球与角色挡板的碰撞
+	Collision collision = CheckCollision(*Ball, *Player);
+	//球没有固定并且发生碰撞
+	if (!Ball->Stuck && std::get<0>(collision)) {
+		GLfloat centerBoard = Player->Position.x + Player->Size.x / 2;
+		//球的圆心距挡板中心的水平距离
+		GLfloat distence = (Ball->Position.x + Ball->Radius) - centerBoard;
+		GLfloat percentage = distence / (Player->Size.x / 2);
+
+		GLfloat strength = 2.0f;
+		glm::vec2 oldVelocity = Ball->Velocity;
+		Ball->Velocity.x = BALL_VELOCITY.x * percentage * strength;
+		//因为球碰撞挡板之后y轴的速度必然是向上的
+		Ball->Velocity.y = -std::abs(Ball->Velocity.y);
+		//保证球的速度矢量不变
+		Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
 	}
 }
 
@@ -135,7 +185,7 @@ GLboolean Game::CheckCollision(GameObject& one, GameObject& two)
 	return collisionX && collisionY;
 }
 
-GLboolean Game::CheckCollision(BallObject& one, GameObject& two)
+Collision Game::CheckCollision(BallObject& one, GameObject& two)
 {
 	//获取圆心
 	glm::vec2 center(one.Position + one.Radius);
@@ -149,5 +199,48 @@ GLboolean Game::CheckCollision(BallObject& one, GameObject& two)
 	glm::vec2 closest = aabb_center + clamped;
 	difference = center - closest;
 	//如果距离小于等于半径则说明撞到了
-	return glm::length(difference) <= one.Radius;
+	if (glm::length(difference) <= one.Radius)
+		return std::make_tuple(GL_TRUE, VectorDirection(difference), difference);
+	else
+		return std::make_tuple(GL_FALSE, UP, glm::vec2(0.0f, 0.0f));
+}
+
+Direction Game::VectorDirection(glm::vec2 target)
+{
+	/*
+	表示的是碰撞发生在球的哪个方向
+	target 是碰撞点向量(从圆心出发)， 可以想象成把碰撞点向量平移到左上角原点，然后在左上角原点上定义4个方向，然后根据下面计算的点乘结果判断哪个碰撞点向量离哪个方向更近。
+	max 越大说明夹角越小，说明圆心到最近点的方向向量越靠近哪个方向。
+	*/
+	glm::vec2 compass[] = {
+		glm::vec2(0.0f,1.0f), //上
+		glm::vec2(0.0f,-1.0f),//下
+		glm::vec2(1.0f,0.0f), //右
+		glm::vec2(-1.0f,0.0f) //左
+	};
+	GLfloat max = 0.0f;
+	GLuint best_match = -1;
+	for (GLuint i = 0;i < 4;i++) {
+		GLfloat dot_product = glm::dot(glm::normalize(target), compass[i]);
+		if (dot_product > max) {
+			max = dot_product;
+			best_match = i;
+		}
+	}
+	return Direction(best_match);
+}
+
+void Game::ResetLevel()
+{
+	if (level == 0) levels[0].Load("res/levels/one.txt", Width, Height * 0.5f);
+	else if (level == 1) levels[1].Load("res/levels/two.txt", Width, Height * 0.5f);
+	else if (level == 2) levels[2].Load("res/levels/three.txt", Width, Height * 0.5f);
+	else if (level == 3) levels[3].Load("res/levels/four.txt", Width, Height * 0.5f);
+}
+
+void Game::ResetPlayer()
+{
+	Player->Size = PLAYER_SIZE;
+	Player->Position = glm::vec2(Width / 2 - PLAYER_SIZE.x / 2, Height - PLAYER_SIZE.y);
+	Ball->Reset(glm::vec2(Player->Position + glm::vec2(PLAYER_SIZE.x / 2 - Ball->Radius, -Ball->Radius * 2)),BALL_VELOCITY);
 }
