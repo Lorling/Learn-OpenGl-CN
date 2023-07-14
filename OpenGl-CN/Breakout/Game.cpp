@@ -15,6 +15,7 @@ const GLfloat BALL_RADIUS = 12.5f;
 SpriteRenderer* Renderer;
 GameObject* Player;
 BallObject* Ball;
+ParticleGenerator* Particles;
 
 Game::Game(GLfloat width, GLfloat height) :
 	State(GAME_ACTIVE), Keys(), Width(width), Height(height)
@@ -26,16 +27,22 @@ Game::~Game()
 	delete Renderer;
 	delete Player;
 	delete Ball;
+	delete Particles;
 }
 
 void Game::Init()
 {
+	//加载着色器
 	ResourceManager::LoadShader("Breakout/shaders/Sprite.shader", "sprite");
+	ResourceManager::LoadShader("Breakout/shaders/Particle.shader", "particle");
 
 	glm::mat4 projection = glm::ortho(0.0f, Width, Height, 0.0f, -1.0f, 1.0f);
 	ResourceManager::GetShader("sprite").Use();
 	ResourceManager::GetShader("sprite").SetUniformInt("image", 0);
 	ResourceManager::GetShader("sprite").SetUniformMatrix4fv("projection", projection);
+	ResourceManager::GetShader("particle").Use();
+	ResourceManager::GetShader("particle").SetUniformInt("image", 0);
+	ResourceManager::GetShader("particle").SetUniformMatrix4fv("projection", projection);
 
 	//加载纹理
 	ResourceManager::LoadTexture("res/textures/background.jpg", "background");
@@ -43,6 +50,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("res/textures/block_solid.png", "block_solid");
 	ResourceManager::LoadTexture("res/textures/paddle.png", "paddle");
 	ResourceManager::LoadTexture("res/textures/awesomeface.png", "ball");
+	ResourceManager::LoadTexture("res/textures/particle.png", "particle");
 	//加载关卡
 	GameLevel one, two, three, four;
 	one.Load("res/levels/one.txt", Width, Height * 0.5f);
@@ -60,6 +68,8 @@ void Game::Init()
 	//初始化球
 	glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2 - BALL_RADIUS, -2 * BALL_RADIUS);//球左上角的位置
 	Ball = new BallObject(ballPos, BALL_RADIUS, BALL_VELOCITY, ResourceManager::GetTexture("ball"));
+
+	Particles = new ParticleGenerator(ResourceManager::GetShader("particle"), ResourceManager::GetTexture("particle"), 500);
 
 	Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 }
@@ -103,6 +113,8 @@ void Game::Update(GLfloat dt)
 		ResetLevel();
 		ResetPlayer();
 	}
+	//粒子更新，并且产生的粒子偏向球中心
+	Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2));
 }
 
 void Game::Render()
@@ -114,6 +126,8 @@ void Game::Render()
 		levels[level].Draw(*Renderer);
 		//绘制角色挡板
 		Player->Draw(*Renderer);
+		//绘制粒子
+		Particles->Draw();
 		//绘制球
 		Ball->Draw(*Renderer);
 	}

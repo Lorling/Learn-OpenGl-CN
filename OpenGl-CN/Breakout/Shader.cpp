@@ -97,6 +97,16 @@ void Shader::CreateShader(ShaderType& type, const std::string& sourceShader) {
     GLCall(glDeleteShader(shader));
 }
 
+void Shader::SetUniformVec2(const char* uniformName, float f1, float f2)
+{
+    GLCall(glUniform2f(glGetUniformLocation(Program, uniformName), f1, f2));
+}
+
+void Shader::SetUniformVec2(const char* uniformName, glm::vec2 vector)
+{
+    GLCall(glUniform2f(glGetUniformLocation(Program, uniformName), vector.x, vector.y));
+}
+
 void Shader::SetUniformVec3(const char* uniformName, float f1, float f2, float f3)
 {
     GLCall(glUniform3f(glGetUniformLocation(Program, uniformName), f1, f2, f3));
@@ -105,6 +115,16 @@ void Shader::SetUniformVec3(const char* uniformName, float f1, float f2, float f
 void Shader::SetUniformVec3(const char* uniformName, glm::vec3 vector)
 {
     GLCall(glUniform3f(glGetUniformLocation(Program, uniformName), vector.x, vector.y, vector.z));
+}
+
+void Shader::SetUniformVec4(const char* uniformName, float f1, float f2, float f3, float f4)
+{
+    GLCall(glUniform4f(glGetUniformLocation(Program, uniformName), f1, f2, f3, f4));
+}
+
+void Shader::SetUniformVec4(const char* uniformName, glm::vec4 vector)
+{
+    GLCall(glUniform4f(glGetUniformLocation(Program, uniformName), vector.x, vector.y, vector.z, vector.w));
 }
 
 void Shader::SetUniformMatrix4fv(const char* uniformName, glm::mat4 matrix)

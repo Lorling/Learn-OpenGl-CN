@@ -152,8 +152,10 @@
     <ClCompile Include="Breakout\SpriteRenderer.cpp" />
     <ClCompile Include="Breakout\GameObject.cpp" />
     <ClCompile Include="Breakout\GameLevel.cpp" />
+    <ClCompile Include="Breakout\ParticleGenerator.cpp" />
     <ClCompile Include="res\stb_image\stb_image.cpp" />
     <ClCompile Include="Breakout\Game.cpp" />
+    <None Include="Breakout\shaders\Particle.shader" />
     <None Include="Breakout\shaders\Sprite.shader">
       <FileType>Document</FileType>
     </None>
@@ -173,6 +175,7 @@
     <ClInclude Include="Breakout\ResourceManager.h" />
     <ClInclude Include="Breakout\GameObject.h" />
     <ClInclude Include="Breakout\GameLevel.h" />
+    <ClInclude Include="Breakout\ParticleGenerator.h" />
     <ClInclude Include="res\stb_image\stb_image.h" />
     <ClInclude Include="Breakout\Game.h" />
     <ClInclude Include="Breakout\Texture.h" />
@@ -230,6 +233,7 @@
     <Image Include="res\textures\marble.jpg" />
     <Image Include="res\textures\metal.png" />
     <Image Include="res\textures\paddle.png" />
+    <Image Include="res\textures\particle.png" />
     <Image Include="res\textures\skybox\back.jpg" />
     <Image Include="res\textures\skybox\bottom.jpg" />
     <Image Include="res\textures\skybox\front.jpg" />

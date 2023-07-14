@@ -51,6 +51,9 @@
     <ClCompile Include="Breakout\Breakout.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Breakout\ParticleGenerator.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\objects\nanosuit\nanosuit.blend" />
@@ -60,6 +63,7 @@
     <None Include="Breakout\shaders\Sprite.shader">
       <Filter>源文件</Filter>
     </None>
+    <None Include="Breakout\shaders\Particle.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h">
@@ -90,6 +94,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Breakout\BallObject.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\ParticleGenerator.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -266,6 +273,9 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="res\textures\paddle.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\particle.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

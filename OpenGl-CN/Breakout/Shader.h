@@ -24,8 +24,12 @@ public:
 	void Use();
 	void Unuse();
 	unsigned int GetProgramID() { return Program; };
+	void SetUniformVec2(const char* uniformName, float f1, float f2);
+	void SetUniformVec2(const char* uniformName, glm::vec2 vector);
 	void SetUniformVec3(const char* uniformName, float f1, float f2, float f3);
 	void SetUniformVec3(const char* uniformName, glm::vec3 vector);
+	void SetUniformVec4(const char* uniformName, float f1, float f2, float f3,float f4);
+	void SetUniformVec4(const char* uniformName, glm::vec4 vector);
 	void SetUniformMatrix4fv(const char* uniformName, glm::mat4 matrix);
 	void SetUniformFloat(const char* uniformName, float f);
 	void SetUniformInt(const char* uniformName, int t);

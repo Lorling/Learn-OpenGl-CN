@@ -5,6 +5,7 @@
 #include "SpriteRenderer.h"
 #include "GameLevel.h"
 #include "BallObject.h"
+#include "ParticleGenerator.h"
 
 enum GameState {
 	GAME_ACTIVE,
