@@ -54,6 +54,12 @@
     <ClCompile Include="Breakout\ParticleGenerator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Breakout\PostProcessor.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Breakout\PowerUp.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\objects\nanosuit\nanosuit.blend" />
@@ -64,6 +70,7 @@
       <Filter>源文件</Filter>
     </None>
     <None Include="Breakout\shaders\Particle.shader" />
+    <None Include="Breakout\shaders\Scene.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h">
@@ -97,6 +104,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Breakout\ParticleGenerator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\PostProcessor.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\PowerUp.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -276,6 +289,24 @@
       <Filter>资源文件</Filter>
     </Image>
     <Image Include="res\textures\particle.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\powerup_chaos.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\powerup_confuse.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\powerup_increase.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\powerup_passthrough.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\powerup_sticky.png">
+      <Filter>资源文件</Filter>
+    </Image>
+    <Image Include="res\textures\powerup_speed.png">
       <Filter>资源文件</Filter>
     </Image>
   </ItemGroup>

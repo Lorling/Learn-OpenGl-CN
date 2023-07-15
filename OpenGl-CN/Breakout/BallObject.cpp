@@ -1,12 +1,12 @@
 #include "BallObject.h"
 
 BallObject::BallObject() :
-	GameObject(), Radius(12.5f), Stuck(GL_TRUE)
+	GameObject(), Radius(12.5f), Stuck(GL_TRUE), Sticky(GL_FALSE), PassThrough(GL_FALSE)
 {
 }
 
 BallObject::BallObject(glm::vec2 pos, GLfloat radius, glm::vec2 velocity, Texture2D sprite) :
-	GameObject(pos,glm::vec2(radius * 2,radius * 2),sprite,glm::vec3(1.0f),velocity), Radius(radius), Stuck(GL_TRUE)
+	GameObject(pos,glm::vec2(radius * 2,radius * 2),sprite,glm::vec3(1.0f),velocity), Radius(radius), Stuck(GL_TRUE), Sticky(GL_FALSE), PassThrough(GL_FALSE)
 {
 }
 
@@ -34,5 +34,8 @@ void BallObject::Reset(glm::vec2 pos, glm::vec2 velocity)
 {
 	Position = pos;
 	Velocity = velocity;
+	Color = glm::vec3(1.0f);
 	Stuck = GL_TRUE;
+	PassThrough = GL_FALSE;
+	Sticky = GL_FALSE;
 }

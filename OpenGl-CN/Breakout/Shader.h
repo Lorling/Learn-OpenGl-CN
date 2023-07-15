@@ -15,6 +15,7 @@ enum class ShaderType {
 class Shader {
 private:
 	unsigned int Program;//程序ID
+	std::string Filepath;
 public:
 	//读取源码并构造着色器
 	Shader() { }

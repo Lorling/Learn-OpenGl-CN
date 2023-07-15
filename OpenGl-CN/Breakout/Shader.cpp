@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 
-Shader::Shader(const std::string& filepath)
+Shader::Shader(const std::string& filepath) : Filepath(filepath)
 {
     GLCall(Program = glCreateProgram());//创建程序
     ParseShader(filepath);
@@ -75,6 +75,7 @@ GLuint Shader::CompileShader(GLuint type, const std::string& source) {
         char* message = (char*)alloca(length * sizeof(char));//根据日志长度为信息分配地址
         GLCall(glGetShaderInfoLog(id, length, &length, message));//获取日志信息
         std::cout << "Failed to " << (type == GL_VERTEX_SHADER ? "vertex" : "fargment") << " Compile Shader !" << std::endl;
+        std::cout << Filepath << std::endl;
         std::cout << message << std::endl;
         GLCall(glDeleteShader(id));//删除着色器
         return 0;
