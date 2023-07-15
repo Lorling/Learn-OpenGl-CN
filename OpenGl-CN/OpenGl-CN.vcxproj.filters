@@ -71,6 +71,9 @@
     </None>
     <None Include="Breakout\shaders\Particle.shader" />
     <None Include="Breakout\shaders\Scene.shader" />
+    <None Include="assimp-vc143-mtd.dll" />
+    <None Include="ikpMP3.dll" />
+    <None Include="irrKlang.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h">
@@ -321,5 +324,18 @@
   <ItemGroup>
     <Object Include="res\objects\nanosuit\nanosuit.obj" />
     <Object Include="res\objects\nanosuit_reflection\nanosuit.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Media Include="res\audio\breakout.mp3" />
+    <Media Include="res\audio\bleep.mp3" />
+    <Media Include="res\audio\bleep.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="res\audio\powerup.wav">
+      <Filter>资源文件</Filter>
+    </Media>
+    <Media Include="res\audio\solid.wav">
+      <Filter>资源文件</Filter>
+    </Media>
   </ItemGroup>
 </Project>

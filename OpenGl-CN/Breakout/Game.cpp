@@ -17,6 +17,7 @@ GameObject* Player;
 BallObject* Ball;
 ParticleGenerator* Particles;
 PostProcessor* Effects;
+irrklang::ISoundEngine* SoundEngine = irrklang::createIrrKlangDevice();
 
 GLfloat ShakeTime = 0.0f;
 
@@ -27,6 +28,7 @@ Game::Game(GLfloat width, GLfloat height) :
 
 Game::~Game()
 {
+	delete SoundEngine;
 	delete Renderer;
 	delete Player;
 	delete Ball;
@@ -36,6 +38,7 @@ Game::~Game()
 
 void Game::Init()
 {
+	SoundEngine->play2D("res/audio/breakout.mp3", GL_TRUE);
 	//加载着色器
 	ResourceManager::LoadShader("Breakout/shaders/Sprite.shader", "sprite");
 	ResourceManager::LoadShader("Breakout/shaders/Particle.shader", "particle");
@@ -177,10 +180,12 @@ void Game::DoCollisions()
 			if (std::get<0>(collision)) {//如果碰撞到的话
 				//如果砖块不是实心就销毁
 				if (!box.IsSolid) {
+					SoundEngine->play2D("res/audio/bleep.mp3", GL_FALSE);
 					box.Destroyed = GL_TRUE;
 					SpawnPowerUps(box);
 				}
 				else {
+					SoundEngine->play2D("res/audio/solid.wav", GL_FALSE);
 					//如果是实心球则触发shake特效
 					ShakeTime = 0.05f;
 					Effects->Shake = GL_TRUE;
@@ -219,6 +224,8 @@ void Game::DoCollisions()
 	if (!Ball->Stuck && std::get<0>(collision)) {
 		//根据道具更新状态
 		Ball->Stuck = Ball->Sticky;
+		if (Ball->Stuck) Ball->Position.y = Height - Player->Size.y - Ball->Radius * 2;
+		if(!Ball->Stuck) SoundEngine->play2D("res/audio/bleep.wav", GL_FALSE);
 		GLfloat centerBoard = Player->Position.x + Player->Size.x / 2;
 		//球的圆心距挡板中心的水平距离
 		GLfloat distence = (Ball->Position.x + Ball->Radius) - centerBoard;
@@ -240,6 +247,7 @@ void Game::DoCollisions()
 				powerUp.Destroyed = GL_TRUE;
 			//使用AABB碰撞检测
 			if (CheckCollision(*Player, powerUp)) {
+				SoundEngine->play2D("res/audio/powerup.wav", GL_FALSE);
 				ActivatePowerUp(powerUp);
 				powerUp.Destroyed = GL_TRUE;
 				powerUp.Activated = GL_TRUE;

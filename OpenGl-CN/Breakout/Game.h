@@ -1,5 +1,7 @@
 #pragma once
 
+#include <irrKlang.h>
+
 #include "Renderer.h"
 #include "Shader.h"
 #include "SpriteRenderer.h"
