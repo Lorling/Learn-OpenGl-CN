@@ -153,6 +153,15 @@ void Game::ProccessInput(GLfloat dt)
 			level = (level + 1) % 4;
 		}
 	}
+	if (State == GAME_FAIL) {
+		if (Keys[GLFW_KEY_ENTER] && !KeysProcessed[GLFW_KEY_ENTER]) {
+			KeysProcessed[GLFW_KEY_ENTER] = GL_TRUE;
+			State = GAME_ACTIVE;
+			ResetLevel();
+			ResetPlayer();
+			Ball->Reset(glm::vec2(Player->Position + glm::vec2(PLAYER_SIZE.x / 2 - Ball->Radius, -Ball->Radius * 2)), BALL_VELOCITY);
+		}
+	}
 }
 
 void Game::Update(GLfloat dt)
@@ -169,7 +178,8 @@ void Game::Update(GLfloat dt)
 	if (Ball->Position.y >= Height && State != GAME_WIN) {
 		Life--;
 		if (Life == 0) {
-			ResetLevel();
+			State = GAME_FAIL;
+			FailText = rand() % 5;
 		}
 		ResetPlayer();
 	}
@@ -202,21 +212,46 @@ void Game::Render()
 		if (!powerUp.Destroyed)
 			powerUp.Draw(*Renderer);
 	//绘制文本
-	wchar_t text[20];
-	swprintf_s(text, L"生命：%d", Life);
-	Text->RenderText(text, 5.0f, 5.0f, 1.0f);
+	wchar_t LifeText[20];
+	swprintf_s(LifeText, L"生命：%d", Life);
+	wchar_t LevelText[20];
+	swprintf_s(LevelText, L"关卡%d", level + 1);
+	Text->RenderText(LifeText, 5.0f, 5.0f, 1.0f);
+	Text->RenderText(LevelText, Width - 80.0f, 5.0f, 1.0f);
 	if (State == GAME_MENU) {
 		Text->RenderText(L"按 ENTER 开始游戏", 300.0f, Height / 2, 1.0f);
-		wchar_t text[20];
-		swprintf_s(text, L"关卡%d", level + 1);
-		Text->RenderText(text, 360.0f, Height / 2 + 20.0f, 1.0f);
+		Text->RenderText(LevelText, 360.0f, Height / 2 + 20.0f, 1.0f);
 		Text->RenderText(L"按 W 或 S 选择关卡", 290.0f, Height / 2 + 40.0f, 1.0f);
 		Text->RenderText(L"按 ESC 退出游戏", 310.0f, Height / 2 + 60.0f, 1.0f);
 	}
 	if (State == GAME_WIN) {
-		Text->RenderText(L"牛", 380.0f, Height / 2, 1.0f,glm::vec3(0.0f,1.0f,0.0f));
-		Text->RenderText(L"按 ENTER 重新游戏", 300.0f, Height / 2 + 20.0f, 1.0f, glm::vec3(1.0f,1.0f,0.0f));
-		Text->RenderText(L"按 ESC 退出游戏", 310.0f, Height / 2 + 40.0f, 1.0f, glm::vec3(1.0f, 1.0f, 0.0f));
+		Text->RenderText(L"牛", 340.0f, Height / 2 - 20, 1.0f, 100,glm::vec3(0.0f,1.0f,0.0f));
+		Text->RenderText(L"按 ENTER 重新游戏", 300.0f, Height / 2 + 20.0f, 1.0f, 24, glm::vec3(1.0f,1.0f,0.0f));
+		Text->RenderText(L"按 ESC 退出游戏", 310.0f, Height / 2 + 40.0f, 1.0f, 24, glm::vec3(1.0f, 1.0f, 0.0f));
+	}
+	if (State == GAME_FAIL) {
+		switch (FailText)
+		{
+		case 0:
+			Text->RenderText(L"菜", 340.0f, Height / 2 - 20, 1.0f, 100, glm::vec3(0.0f, 1.0f, 0.0f));
+			break;
+		case 1:
+			Text->RenderText(L"笨", 340.0f, Height / 2 - 20, 1.0f, 100, glm::vec3(0.0f, 1.0f, 0.0f));
+			break;
+		case 2:
+			Text->RenderText(L"该", 340.0f, Height / 2 - 20, 1.0f, 100, glm::vec3(0.0f, 1.0f, 0.0f));
+			break;
+		case 3:
+			Text->RenderText(L"猪", 340.0f, Height / 2 - 20, 1.0f, 100, glm::vec3(0.0f, 1.0f, 0.0f));
+			break;
+		case 4:
+			Text->RenderText(L"寄", 340.0f, Height / 2 - 20, 1.0f, 100, glm::vec3(0.0f, 1.0f, 0.0f));
+			break;
+		default:
+			break;
+		}
+		Text->RenderText(L"按 ENTER 重新游戏", 300.0f, Height / 2 + 20.0f, 1.0f, 24, glm::vec3(1.0f, 1.0f, 0.0f));
+		Text->RenderText(L"按 ESC 退出游戏", 310.0f, Height / 2 + 40.0f, 1.0f, 24, glm::vec3(1.0f, 1.0f, 0.0f));
 	}
 	Effects->EndRender();
 	Effects->Render(glfwGetTime());

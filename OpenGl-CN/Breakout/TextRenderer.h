@@ -24,7 +24,7 @@ public:
 	//¼ÓÔØttfÎÄ¼þ
 	void Load(std::string filepath, GLuint fontSize, wchar_t c = ' ', GLboolean f = GL_FALSE);
 
-	void RenderText(const wchar_t* text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color = glm::vec3(1.0f));
+	void RenderText(const wchar_t* text, GLfloat x, GLfloat y, GLfloat scale, GLuint fontSize = 24, glm::vec3 color = glm::vec3(1.0f));
 private:
 	GLuint VAO;
 	GLuint VBO;

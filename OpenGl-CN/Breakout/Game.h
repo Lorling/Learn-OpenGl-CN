@@ -16,6 +16,7 @@ enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
 	GAME_WIN,
+	GAME_FAIL,
 };
 
 enum Direction {
@@ -38,6 +39,7 @@ public:
 	std::vector<PowerUp> PowerUps;
 	GLuint level;
 	GLuint Life = 3;
+	GLuint FailText;
 
 	Game(GLfloat width, GLfloat height);
 	~Game();

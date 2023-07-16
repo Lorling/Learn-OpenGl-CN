@@ -84,7 +84,7 @@ void TextRenderer::Load(std::string filepath, GLuint fontSize, wchar_t c, GLbool
 	FT_Done_FreeType(ft);
 }
 
-void TextRenderer::RenderText(const wchar_t* text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
+void TextRenderer::RenderText(const wchar_t* text, GLfloat x, GLfloat y, GLfloat scale, GLuint fontSize, glm::vec3 color)
 {
 	TextShader.Use();
 	TextShader.SetUniformVec3("textColor", color);
@@ -94,7 +94,7 @@ void TextRenderer::RenderText(const wchar_t* text, GLfloat x, GLfloat y, GLfloat
 	for (int i = 0;i < l;i++) {
 		wchar_t c = text[i];
 		if (Characters.find(c) == Characters.end()) 
-			Load(Filepath, FontSize, c, GL_TRUE);
+			Load(Filepath, fontSize, c, GL_TRUE);
 		
 		Character ch = Characters[c];
 		if(c == 'Éú')std::cout << ch.Advance << std::endl;
