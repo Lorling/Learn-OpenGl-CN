@@ -76,14 +76,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependecies\GLFW\include;$(SolutionDir)Dependecies\glm\include;$(SolutionDir)Dependecies\glad\include;$(SolutionDir)Dependecies\assimp\include;$(SolutionDir)Dependecies\irrKlang\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependecies\GLFW\include;$(SolutionDir)Dependecies\glm\include;$(SolutionDir)Dependecies\glad\include;$(SolutionDir)Dependecies\assimp\include;$(SolutionDir)Dependecies\irrKlang\include;$(SolutionDir)Dependecies\freetype\include;</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependecies\assimp\lib;$(SolutionDir)Dependecies\GLFW\lib-vc2022;$(SolutionDir)Dependecies\irrKlang\lib;$(SolutionDir)Dependecies\irrKlang\bin;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>irrKlang.lib;assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependecies\assimp\lib;$(SolutionDir)Dependecies\GLFW\lib-vc2022;$(SolutionDir)Dependecies\irrKlang\lib;$(SolutionDir)Dependecies\freetype\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype.lib;irrKlang.lib;assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -94,7 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependecies\GLFW\include;$(SolutionDir)Dependecies\glm\include;$(SolutionDir)Dependecies\glad\include;$(SolutionDir)Dependecies\assimp\include;$(SolutionDir)Dependecies\irrKlang\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependecies\GLFW\include;$(SolutionDir)Dependecies\glm\include;$(SolutionDir)Dependecies\glad\include;$(SolutionDir)Dependecies\assimp\include;$(SolutionDir)Dependecies\irrKlang\include;$(SolutionDir)Dependecies\freetype\include;</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -102,8 +102,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependecies\assimp\lib;$(SolutionDir)Dependecies\GLFW\lib-vc2022;$(SolutionDir)Dependecies\irrKlang\lib;$(SolutionDir)Dependecies\irrKlang\bin;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>irrKlang.lib;assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependecies\assimp\lib;$(SolutionDir)Dependecies\GLFW\lib-vc2022;$(SolutionDir)Dependecies\irrKlang\lib;$(SolutionDir)Dependecies\freetype\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype.lib;irrKlang.lib;assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -112,14 +112,14 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependecies\GLFW\include;$(SolutionDir)Dependecies\glm\include;$(SolutionDir)Dependecies\glad\include;$(SolutionDir)Dependecies\assimp\include;$(SolutionDir)Dependecies\irrKlang\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependecies\GLFW\include;$(SolutionDir)Dependecies\glm\include;$(SolutionDir)Dependecies\glad\include;$(SolutionDir)Dependecies\assimp\include;$(SolutionDir)Dependecies\irrKlang\include;$(SolutionDir)Dependecies\freetype\include;</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependecies\assimp\lib;$(SolutionDir)Dependecies\GLFW\lib-vc2022;$(SolutionDir)Dependecies\irrKlang\lib;$(SolutionDir)Dependecies\irrKlang\bin;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>irrKlang.lib;assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependecies\assimp\lib;$(SolutionDir)Dependecies\GLFW\lib-vc2022;$(SolutionDir)Dependecies\irrKlang\lib;$(SolutionDir)Dependecies\freetype\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype.lib;irrKlang.lib;assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -130,7 +130,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)Dependecies\GLFW\include;$(SolutionDir)Dependecies\glm\include;$(SolutionDir)Dependecies\glad\include;$(SolutionDir)Dependecies\assimp\include;$(SolutionDir)Dependecies\irrKlang\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)Dependecies\GLFW\include;$(SolutionDir)Dependecies\glm\include;$(SolutionDir)Dependecies\glad\include;$(SolutionDir)Dependecies\assimp\include;$(SolutionDir)Dependecies\irrKlang\include;$(SolutionDir)Dependecies\freetype\include;</AdditionalIncludeDirectories>
       <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
@@ -138,8 +138,8 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)Dependecies\assimp\lib;$(SolutionDir)Dependecies\GLFW\lib-vc2022;$(SolutionDir)Dependecies\irrKlang\lib;$(SolutionDir)Dependecies\irrKlang\bin;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>irrKlang.lib;assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Dependecies\assimp\lib;$(SolutionDir)Dependecies\GLFW\lib-vc2022;$(SolutionDir)Dependecies\irrKlang\lib;$(SolutionDir)Dependecies\freetype\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>freetype.lib;irrKlang.lib;assimp-vc143-mtd.lib;glfw3.lib;opengl32.lib;user32.lib;Gdi32.lib;Shell32.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -157,6 +157,7 @@
     <ClCompile Include="Breakout\PowerUp.cpp" />
     <ClCompile Include="res\stb_image\stb_image.cpp" />
     <ClCompile Include="Breakout\Game.cpp" />
+    <ClCompile Include="Breakout\TextRenderer.cpp" />
     <None Include="assimp-vc143-mtd.dll" />
     <None Include="Breakout\shaders\Particle.shader" />
     <None Include="Breakout\shaders\Scene.shader" />
@@ -166,6 +167,7 @@
     <ClCompile Include="Breakout\Texture.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="freetype.dll" />
     <None Include="ikpMP3.dll" />
     <None Include="irrKlang.dll" />
     <None Include="res\objects\nanosuit\nanosuit.blend" />
@@ -187,6 +189,7 @@
     <ClInclude Include="res\stb_image\stb_image.h" />
     <ClInclude Include="Breakout\Game.h" />
     <ClInclude Include="Breakout\Texture.h" />
+    <ClInclude Include="Breakout\TextRenderer.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="res\objects\nanosuit\arm_dif.png" />
@@ -256,6 +259,7 @@
     <Image Include="res\textures\skybox\top.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="Breakout\shaders\Text.shader" />
     <Text Include="res\levels\four.txt" />
     <Text Include="res\levels\one.txt" />
     <Text Include="res\levels\three.txt" />
@@ -283,6 +287,9 @@
     <Media Include="res\audio\breakout.mp3" />
     <Media Include="res\audio\powerup.wav" />
     <Media Include="res\audio\solid.wav" />
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="res\meow.TTF" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

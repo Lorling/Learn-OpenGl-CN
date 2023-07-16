@@ -60,6 +60,9 @@
     <ClCompile Include="Breakout\PowerUp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Breakout\TextRenderer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\objects\nanosuit\nanosuit.blend" />
@@ -74,6 +77,7 @@
     <None Include="assimp-vc143-mtd.dll" />
     <None Include="ikpMP3.dll" />
     <None Include="irrKlang.dll" />
+    <None Include="freetype.dll" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="res\stb_image\stb_image.h">
@@ -113,6 +117,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Breakout\PowerUp.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Breakout\TextRenderer.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -320,6 +327,7 @@
     <Text Include="res\levels\two.txt" />
     <Text Include="res\levels\three.txt" />
     <Text Include="res\levels\four.txt" />
+    <Text Include="Breakout\shaders\Text.shader" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="res\objects\nanosuit\nanosuit.obj" />
@@ -337,5 +345,8 @@
     <Media Include="res\audio\solid.wav">
       <Filter>资源文件</Filter>
     </Media>
+  </ItemGroup>
+  <ItemGroup>
+    <Font Include="res\meow.TTF" />
   </ItemGroup>
 </Project>

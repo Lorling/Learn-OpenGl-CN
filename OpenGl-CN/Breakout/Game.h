@@ -10,6 +10,7 @@
 #include "ParticleGenerator.h"
 #include "PostProcessor.h"
 #include "PowerUp.h"
+#include "TextRenderer.h"
 
 enum GameState {
 	GAME_ACTIVE,
@@ -34,6 +35,7 @@ public:
 	std::vector<GameLevel> levels;
 	std::vector<PowerUp> PowerUps;
 	GLuint level;
+	GLuint Life = 3;
 
 	Game(GLfloat width, GLfloat height);
 	~Game();

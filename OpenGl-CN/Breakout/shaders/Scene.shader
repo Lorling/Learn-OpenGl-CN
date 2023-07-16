@@ -16,8 +16,11 @@ void main ()
     vec2 texture = vertex.zw;
     if (chaos)
     {
-        float strength = 0.3f;
-        vec2 pos = vec2(texture.x + sin(time) * strength, texture.y + cos(time) * strength);
+        float strength = 0.03f;
+        //按时间往右上角移动
+        vec2 pos = vec2(texture.x + time * strength, texture.y + time * strength);
+        //按一个点转动
+        //vec2 pos = vec2(texture.x + sin(time) * strength, texture.y + cos(time) * strength);
         TexCoords = pos;
     }
     else if (confuse)

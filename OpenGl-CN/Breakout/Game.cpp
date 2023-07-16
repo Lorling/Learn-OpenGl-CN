@@ -1,15 +1,17 @@
-#include "Game.h"
+ï»¿#include "Game.h"
 #include "ResourceManager.h"
 #include <iostream>
 #include <GLFW/glfw3.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H 
 
-//³õÊ¼»¯½ÇÉ«µ²°å´óĞ¡
+//åˆå§‹åŒ–è§’è‰²æŒ¡æ¿å¤§å°
 const glm::vec2 PLAYER_SIZE(100, 20);
-//³õÊ¼»¯½ÇÉ«µ²°åËÙ¶È
+//åˆå§‹åŒ–è§’è‰²æŒ¡æ¿é€Ÿåº¦
 const GLfloat PLAYER_VELOCITY(500.0f);
-//³õÊ¼»¯ÇòµÄËÙ¶È
+//åˆå§‹åŒ–çƒçš„é€Ÿåº¦
 const glm::vec2 BALL_VELOCITY(100.0f, -350.f);
-//ÇòµÄ°ë¾¶
+//çƒçš„åŠå¾„
 const GLfloat BALL_RADIUS = 12.5f;
 
 SpriteRenderer* Renderer;
@@ -18,6 +20,7 @@ BallObject* Ball;
 ParticleGenerator* Particles;
 PostProcessor* Effects;
 irrklang::ISoundEngine* SoundEngine = irrklang::createIrrKlangDevice();
+TextRenderer* Text;
 
 GLfloat ShakeTime = 0.0f;
 
@@ -39,12 +42,13 @@ Game::~Game()
 void Game::Init()
 {
 	SoundEngine->play2D("res/audio/breakout.mp3", GL_TRUE);
-	//¼ÓÔØ×ÅÉ«Æ÷
+	//åŠ è½½ç€è‰²å™¨
 	ResourceManager::LoadShader("Breakout/shaders/Sprite.shader", "sprite");
 	ResourceManager::LoadShader("Breakout/shaders/Particle.shader", "particle");
 	ResourceManager::LoadShader("Breakout/shaders/Scene.shader", "scene");
 
-	glm::mat4 projection = glm::ortho(0.0f, Width, Height, 0.0f, -1.0f, 1.0f);
+	//æ­£äº¤æŠ•å½±çŸ©é˜µ
+	glm::mat4 projection = glm::ortho(0.0f, Width, Height, 0.0f, -1.0f, 1.0f);//å·¦è¾¹ç•Œï¼Œå³è¾¹ç•Œï¼Œä¸‹è¾¹å±Šï¼Œä¸Šè¾¹ç•Œï¼Œæœ€è¿‘è·ç¦»ï¼Œæœ€è¿œè·ç¦»
 	ResourceManager::GetShader("sprite").Use();
 	ResourceManager::GetShader("sprite").SetUniformInt("image", 0);
 	ResourceManager::GetShader("sprite").SetUniformMatrix4fv("projection", projection);
@@ -52,7 +56,7 @@ void Game::Init()
 	ResourceManager::GetShader("particle").SetUniformInt("image", 0);
 	ResourceManager::GetShader("particle").SetUniformMatrix4fv("projection", projection);
 
-	//¼ÓÔØÎÆÀí
+	//åŠ è½½çº¹ç†
 	ResourceManager::LoadTexture("res/textures/background.jpg", "background");
 	ResourceManager::LoadTexture("res/textures/block.png", "block");
 	ResourceManager::LoadTexture("res/textures/block_solid.png", "block_solid");
@@ -65,7 +69,7 @@ void Game::Init()
 	ResourceManager::LoadTexture("res/textures/powerup_passthrough.png", "passthrough");
 	ResourceManager::LoadTexture("res/textures/powerup_sticky.png", "sticky");
 	ResourceManager::LoadTexture("res/textures/powerup_speed.png", "speed");
-	//¼ÓÔØ¹Ø¿¨
+	//åŠ è½½å…³å¡
 	GameLevel one, two, three, four;
 	one.Load("res/levels/one.txt", Width, Height * 0.5f);
 	two.Load("res/levels/one.txt", Width, Height * 0.5f);
@@ -76,11 +80,11 @@ void Game::Init()
 	levels.push_back(three);
 	levels.push_back(four);
 	level = 0;
-	//³õÊ¼»¯½ÇÉ«µ²°å
+	//åˆå§‹åŒ–è§’è‰²æŒ¡æ¿
 	glm::vec2 playerPos = glm::vec2(Width / 2 - PLAYER_SIZE.x / 2, Height - PLAYER_SIZE.y);
 	Player = new GameObject(playerPos, PLAYER_SIZE, ResourceManager::GetTexture("paddle"));
-	//³õÊ¼»¯Çò
-	glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2 - BALL_RADIUS, -2 * BALL_RADIUS);//Çò×óÉÏ½ÇµÄÎ»ÖÃ
+	//åˆå§‹åŒ–çƒ
+	glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2 - BALL_RADIUS, -2 * BALL_RADIUS);//çƒå·¦ä¸Šè§’çš„ä½ç½®
 	Ball = new BallObject(ballPos, BALL_RADIUS, BALL_VELOCITY, ResourceManager::GetTexture("ball"));
 
 	Particles = new ParticleGenerator(ResourceManager::GetShader("particle"), ResourceManager::GetTexture("particle"), 500);
@@ -88,13 +92,16 @@ void Game::Init()
 	Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 
 	Effects = new PostProcessor(ResourceManager::GetShader("scene"), Width, Height);
+
+	Text = new TextRenderer(Width, Height);
+	Text->Load("res/meow.TTF", 24);
 }
 
 void Game::ProccessInput(GLfloat dt)
 {
 	if (State == GAME_ACTIVE) {
 		GLfloat velocity = PLAYER_VELOCITY * dt;
-		//ÒÆ¶¯µ²°å£¬²¢ÇÒÈÃÇò¸ú×Åµ²°åÒÆ¶¯
+		//ç§»åŠ¨æŒ¡æ¿ï¼Œå¹¶ä¸”è®©çƒè·Ÿç€æŒ¡æ¿ç§»åŠ¨
 		if (Keys[GLFW_KEY_A]) {
 			if (Player->Position.x >= 0) {
 				Player->Position.x -= velocity;
@@ -115,7 +122,7 @@ void Game::ProccessInput(GLfloat dt)
 			}
 			if (Player->Position.x > Width - Player->Size.x) Player->Position.x = Width - Player->Size.x;
 		}
-		//Èç¹ûÊäÈë¿Õ¸ñÔòÊÍ·ÅÇò
+		//å¦‚æœè¾“å…¥ç©ºæ ¼åˆ™é‡Šæ”¾çƒ
 		if (Keys[GLFW_KEY_SPACE]) {
 			Ball->Stuck = GL_FALSE;
 		}
@@ -124,22 +131,21 @@ void Game::ProccessInput(GLfloat dt)
 
 void Game::Update(GLfloat dt)
 {
-	//¸üĞÂÇòµÄÎ»ÖÃ
+	//æ›´æ–°çƒçš„ä½ç½®
 	Ball->Move(dt, Width);
-	//¼ì²âÅö×²
+	//æ£€æµ‹ç¢°æ’
 	DoCollisions();
-	//¼ì²âÇòÅö×²µ×²¿±ß½çËÀÍö
+	//æ£€æµ‹çƒç¢°æ’åº•éƒ¨è¾¹ç•Œæ­»äº¡
 	if (Ball->Position.y >= Height) {
-		ResetLevel();
+		Life--;
+		if (Life == 0) {
+			ResetLevel();
+		}
 		ResetPlayer();
-		//ÇåÀíµÀ¾ß
-		PowerUps.clear();
-		Effects->Confuse = GL_FALSE;
-		Effects->Chaos = GL_FALSE;
 	}
-	//Á£×Ó¸üĞÂ£¬²¢ÇÒ²úÉúµÄÁ£×ÓÆ«ÏòÇòÖĞĞÄ
+	//ç²’å­æ›´æ–°ï¼Œå¹¶ä¸”äº§ç”Ÿçš„ç²’å­åå‘çƒä¸­å¿ƒ
 	Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2));
-	//¸üĞÂshaketime
+	//æ›´æ–°shaketime
 	if (ShakeTime > 0.0f) {
 		ShakeTime -= dt;
 		if (ShakeTime <= 0.0f)
@@ -152,20 +158,24 @@ void Game::Render()
 {
 	if (State == GAME_ACTIVE) {
 		Effects->BeginRender();
-		//»æÖÆ±³¾°
+		//ç»˜åˆ¶èƒŒæ™¯
 		Renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f, 0.0f), glm::vec2(Width, Height), 0.0f);
-		//»æÖÆ¹Ø¿¨
+		//ç»˜åˆ¶å…³å¡
 		levels[level].Draw(*Renderer);
-		//»æÖÆ½ÇÉ«µ²°å
+		//ç»˜åˆ¶è§’è‰²æŒ¡æ¿
 		Player->Draw(*Renderer);
-		//»æÖÆÁ£×Ó
+		//ç»˜åˆ¶ç²’å­
 		Particles->Draw();
-		//»æÖÆÇò
+		//ç»˜åˆ¶çƒ
 		Ball->Draw(*Renderer);
+		//ç»˜åˆ¶é“å…·
 		for (auto powerUp : PowerUps)
 			if (!powerUp.Destroyed)
 				powerUp.Draw(*Renderer);
-
+		//ç»˜åˆ¶æ–‡æœ¬
+		wchar_t text[20];
+		swprintf_s(text, L"ç”Ÿå‘½ï¼š%d", Life);
+		Text->RenderText(text, 5.0f, 5.0f, 1.0f);
 		Effects->EndRender();
 		Effects->Render(glfwGetTime());
 	}
@@ -173,12 +183,12 @@ void Game::Render()
 
 void Game::DoCollisions()
 {
-	//ÇòÓë×©¿éµÄÅö×²
+	//çƒä¸ç –å—çš„ç¢°æ’
 	for (GameObject& box : levels[level].Bricks) {
 		if (!box.Destroyed) {
 			Collision collision = CheckCollision(*Ball, box);
-			if (std::get<0>(collision)) {//Èç¹ûÅö×²µ½µÄ»°
-				//Èç¹û×©¿é²»ÊÇÊµĞÄ¾ÍÏú»Ù
+			if (std::get<0>(collision)) {//å¦‚æœç¢°æ’åˆ°çš„è¯
+				//å¦‚æœç –å—ä¸æ˜¯å®å¿ƒå°±é”€æ¯
 				if (!box.IsSolid) {
 					SoundEngine->play2D("res/audio/bleep.mp3", GL_FALSE);
 					box.Destroyed = GL_TRUE;
@@ -186,27 +196,27 @@ void Game::DoCollisions()
 				}
 				else {
 					SoundEngine->play2D("res/audio/solid.wav", GL_FALSE);
-					//Èç¹ûÊÇÊµĞÄÇòÔò´¥·¢shakeÌØĞ§
+					//å¦‚æœæ˜¯å®å¿ƒçƒåˆ™è§¦å‘shakeç‰¹æ•ˆ
 					ShakeTime = 0.05f;
 					Effects->Shake = GL_TRUE;
 				}
-				//Èç¹ûÇò¿ÉÒÔ´©¹ı¾Í²»ĞèÒªÅö×²´¦Àí
+				//å¦‚æœçƒå¯ä»¥ç©¿è¿‡å°±ä¸éœ€è¦ç¢°æ’å¤„ç†
 				if (Ball->PassThrough) continue;
-				//Åö×²´¦Àí
+				//ç¢°æ’å¤„ç†
 				Direction dir = std::get<1>(collision);
 				glm::vec2 diff_vector = std::get<2>(collision);
-				//Ë®Æ½Åö×²
+				//æ°´å¹³ç¢°æ’
 				if (dir == LEFT || dir == RIGHT) {
-					//·´×ªË®Æ½ËÙ¶È
+					//åè½¬æ°´å¹³é€Ÿåº¦
 					Ball->Velocity.x = -Ball->Velocity.x;
-					//ÖØ¶¨Î»£¬±ÜÃâÇò¼·ÔÚ×©¿éÄÚ
+					//é‡å®šä½ï¼Œé¿å…çƒæŒ¤åœ¨ç –å—å†…
 					GLfloat penetration = Ball->Radius - glm::length(diff_vector);
 					if (dir == LEFT)
 						Ball->Position.x += penetration;
 					else
 						Ball->Position.x -= penetration;
 				}
-				//´¹Ö±Åö×²
+				//å‚ç›´ç¢°æ’
 				else {
 					Ball->Velocity.y = -Ball->Velocity.y;
 					GLfloat penetration = Ball->Radius - glm::length(diff_vector);
@@ -218,34 +228,34 @@ void Game::DoCollisions()
 			}
 		}
 	}
-	//ÇòÓë½ÇÉ«µ²°åµÄÅö×²
+	//çƒä¸è§’è‰²æŒ¡æ¿çš„ç¢°æ’
 	Collision collision = CheckCollision(*Ball, *Player);
-	//ÇòÃ»ÓĞ¹Ì¶¨²¢ÇÒ·¢ÉúÅö×²
+	//çƒæ²¡æœ‰å›ºå®šå¹¶ä¸”å‘ç”Ÿç¢°æ’
 	if (!Ball->Stuck && std::get<0>(collision)) {
-		//¸ù¾İµÀ¾ß¸üĞÂ×´Ì¬
+		//æ ¹æ®é“å…·æ›´æ–°çŠ¶æ€
 		Ball->Stuck = Ball->Sticky;
 		if (Ball->Stuck) Ball->Position.y = Height - Player->Size.y - Ball->Radius * 2;
 		if(!Ball->Stuck) SoundEngine->play2D("res/audio/bleep.wav", GL_FALSE);
 		GLfloat centerBoard = Player->Position.x + Player->Size.x / 2;
-		//ÇòµÄÔ²ĞÄ¾àµ²°åÖĞĞÄµÄË®Æ½¾àÀë
+		//çƒçš„åœ†å¿ƒè·æŒ¡æ¿ä¸­å¿ƒçš„æ°´å¹³è·ç¦»
 		GLfloat distence = (Ball->Position.x + Ball->Radius) - centerBoard;
 		GLfloat percentage = distence / (Player->Size.x / 2);
 
 		GLfloat strength = 2.0f;
 		glm::vec2 oldVelocity = Ball->Velocity;
 		Ball->Velocity.x = BALL_VELOCITY.x * percentage * strength;
-		//ÒòÎªÇòÅö×²µ²°åÖ®ºóyÖáµÄËÙ¶È±ØÈ»ÊÇÏòÉÏµÄ
+		//å› ä¸ºçƒç¢°æ’æŒ¡æ¿ä¹‹åyè½´çš„é€Ÿåº¦å¿…ç„¶æ˜¯å‘ä¸Šçš„
 		Ball->Velocity.y = -std::abs(Ball->Velocity.y);
-		//±£Ö¤ÇòµÄËÙ¶ÈÊ¸Á¿²»±ä
+		//ä¿è¯çƒçš„é€Ÿåº¦çŸ¢é‡ä¸å˜
 		Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
 	}
-	//½ÇÉ«µ²°åÓëµÀ¾ßµÄÅö×²
+	//è§’è‰²æŒ¡æ¿ä¸é“å…·çš„ç¢°æ’
 	for (auto& powerUp : PowerUps) {
 		if (!powerUp.Destroyed) {
-			//Èç¹û³ö½ç¾ÍÏú»Ù
+			//å¦‚æœå‡ºç•Œå°±é”€æ¯
 			if (powerUp.Position.y >= Height)
 				powerUp.Destroyed = GL_TRUE;
-			//Ê¹ÓÃAABBÅö×²¼ì²â
+			//ä½¿ç”¨AABBç¢°æ’æ£€æµ‹
 			if (CheckCollision(*Player, powerUp)) {
 				SoundEngine->play2D("res/audio/powerup.wav", GL_FALSE);
 				ActivatePowerUp(powerUp);
@@ -258,29 +268,29 @@ void Game::DoCollisions()
 
 GLboolean Game::CheckCollision(GameObject& one, GameObject& two)
 {
-	// xÖá·½ÏòÅö×²
+	// xè½´æ–¹å‘ç¢°æ’
 	bool collisionX = one.Position.x + one.Size.x >= two.Position.x && two.Position.x + two.Size.x >= one.Position.x;
-	// yÖá·½ÏòÅö×²
+	// yè½´æ–¹å‘ç¢°æ’
 	bool collisionY = one.Position.y + one.Size.y >= two.Position.y && two.Position.y + two.Size.y >= one.Position.y;
-	// Ö»ÓĞÁ½¸öÖáÏò¶¼·¢ÉúÅö×²Ê±²ÅËãÅö×²
+	// åªæœ‰ä¸¤ä¸ªè½´å‘éƒ½å‘ç”Ÿç¢°æ’æ—¶æ‰ç®—ç¢°æ’
 	return collisionX && collisionY;
 }
 
 Collision Game::CheckCollision(BallObject& one, GameObject& two)
 {
-	//»ñÈ¡Ô²ĞÄ
+	//è·å–åœ†å¿ƒ
 	glm::vec2 center(one.Position + one.Radius);
-	//»ñÈ¡AABBµÄĞÅÏ¢
+	//è·å–AABBçš„ä¿¡æ¯
 	glm::vec2 aabb_half_extents(two.Size.x / 2, two.Size.y / 2);
 	glm::vec2 aabb_center(two.Position + aabb_half_extents);
-	//»ñÈ¡Á½¸öÖĞĞÄµÄÊ¸Á¿²î
+	//è·å–ä¸¤ä¸ªä¸­å¿ƒçš„çŸ¢é‡å·®
 	glm::vec2 difference = center - aabb_center;
 	glm::vec2 clamped = glm::clamp(difference, -aabb_half_extents, aabb_half_extents);
-	//ÖĞĞÄ¼ÓÉÏclamped¾ÍÊÇAABBÉÏ¾àÀëÔ²×î½üµÄµã
+	//ä¸­å¿ƒåŠ ä¸Šclampedå°±æ˜¯AABBä¸Šè·ç¦»åœ†æœ€è¿‘çš„ç‚¹
 	glm::vec2 closest = aabb_center + clamped;
 	difference = center - closest;
-	//Èç¹û¾àÀëĞ¡ÓÚ°ë¾¶ÔòËµÃ÷×²µ½ÁË
-	//Èç¹û¼ÓÉÏµÈÓÚµÄ»°£¬Åöµ½ÊµĞÄÇòĞŞÕıÖ®ºóµÄÎ»ÖÃ»¹ÊÇÔÚÅö×²·¶Î§ÄÚ
+	//å¦‚æœè·ç¦»å°äºåŠå¾„åˆ™è¯´æ˜æ’åˆ°äº†
+	//å¦‚æœåŠ ä¸Šç­‰äºçš„è¯ï¼Œç¢°åˆ°å®å¿ƒçƒä¿®æ­£ä¹‹åçš„ä½ç½®è¿˜æ˜¯åœ¨ç¢°æ’èŒƒå›´å†…
 	if (glm::length(difference) < one.Radius)
 		return std::make_tuple(GL_TRUE, VectorDirection(difference), difference);
 	else
@@ -290,15 +300,15 @@ Collision Game::CheckCollision(BallObject& one, GameObject& two)
 Direction Game::VectorDirection(glm::vec2 target)
 {
 	/*
-	±íÊ¾µÄÊÇÅö×²·¢ÉúÔÚÇòµÄÄÄ¸ö·½Ïò
-	target ÊÇÅö×²µãÏòÁ¿(´ÓÔ²ĞÄ³ö·¢)£¬ ¿ÉÒÔÏëÏó³É°ÑÅö×²µãÏòÁ¿Æ½ÒÆµ½×óÉÏ½ÇÔ­µã£¬È»ºóÔÚ×óÉÏ½ÇÔ­µãÉÏ¶¨Òå4¸ö·½Ïò£¬È»ºó¸ù¾İÏÂÃæ¼ÆËãµÄµã³Ë½á¹ûÅĞ¶ÏÄÄ¸öÅö×²µãÏòÁ¿ÀëÄÄ¸ö·½Ïò¸ü½ü¡£
-	max Ô½´óËµÃ÷¼Ğ½ÇÔ½Ğ¡£¬ËµÃ÷Ô²ĞÄµ½×î½üµãµÄ·½ÏòÏòÁ¿Ô½¿¿½üÄÄ¸ö·½Ïò¡£
+	è¡¨ç¤ºçš„æ˜¯ç¢°æ’å‘ç”Ÿåœ¨çƒçš„å“ªä¸ªæ–¹å‘
+	target æ˜¯ç¢°æ’ç‚¹å‘é‡(ä»åœ†å¿ƒå‡ºå‘)ï¼Œ å¯ä»¥æƒ³è±¡æˆæŠŠç¢°æ’ç‚¹å‘é‡å¹³ç§»åˆ°å·¦ä¸Šè§’åŸç‚¹ï¼Œç„¶ååœ¨å·¦ä¸Šè§’åŸç‚¹ä¸Šå®šä¹‰4ä¸ªæ–¹å‘ï¼Œç„¶åæ ¹æ®ä¸‹é¢è®¡ç®—çš„ç‚¹ä¹˜ç»“æœåˆ¤æ–­å“ªä¸ªç¢°æ’ç‚¹å‘é‡ç¦»å“ªä¸ªæ–¹å‘æ›´è¿‘ã€‚
+	max è¶Šå¤§è¯´æ˜å¤¹è§’è¶Šå°ï¼Œè¯´æ˜åœ†å¿ƒåˆ°æœ€è¿‘ç‚¹çš„æ–¹å‘å‘é‡è¶Šé è¿‘å“ªä¸ªæ–¹å‘ã€‚
 	*/
 	glm::vec2 compass[] = {
-		glm::vec2(0.0f,1.0f), //ÉÏ
-		glm::vec2(0.0f,-1.0f),//ÏÂ
-		glm::vec2(1.0f,0.0f), //ÓÒ
-		glm::vec2(-1.0f,0.0f) //×ó
+		glm::vec2(0.0f,1.0f), //ä¸Š
+		glm::vec2(0.0f,-1.0f),//ä¸‹
+		glm::vec2(1.0f,0.0f), //å³
+		glm::vec2(-1.0f,0.0f) //å·¦
 	};
 	GLfloat max = 0.0f;
 	GLuint best_match = -1;
@@ -314,6 +324,7 @@ Direction Game::VectorDirection(glm::vec2 target)
 
 void Game::ResetLevel()
 {
+	Life = 3;
 	if (level == 0) levels[0].Load("res/levels/one.txt", Width, Height * 0.5f);
 	else if (level == 1) levels[1].Load("res/levels/two.txt", Width, Height * 0.5f);
 	else if (level == 2) levels[2].Load("res/levels/three.txt", Width, Height * 0.5f);
@@ -324,14 +335,20 @@ void Game::ResetPlayer()
 {
 	Player->Size = PLAYER_SIZE;
 	Player->Position = glm::vec2(Width / 2 - PLAYER_SIZE.x / 2, Height - PLAYER_SIZE.y);
+	Player->Color = glm::vec3(1.0f);
 	Ball->Reset(glm::vec2(Player->Position + glm::vec2(PLAYER_SIZE.x / 2 - Ball->Radius, -Ball->Radius * 2)),BALL_VELOCITY);
+
+	//æ¸…ç†é“å…·
+	PowerUps.clear();
+	Effects->Confuse = GL_FALSE;
+	Effects->Chaos = GL_FALSE;
 }
 
 void Game::SpawnPowerUps(GameObject& Object)
 {
-	GLuint chance = 75;
+	GLuint chance = 50;
 	GLuint random = rand() % chance;
-	//Éú³ÉÓĞÒæµÀ¾ß
+	//ç”Ÿæˆæœ‰ç›Šé“å…·
 	switch (random) {
 	case 0:
 		PowerUps.push_back(PowerUp(SPEED, 0.0f, glm::vec3(0.5f, 0.5f, 1.0f), Object.Position, ResourceManager::GetTexture(("speed"))));
@@ -345,17 +362,11 @@ void Game::SpawnPowerUps(GameObject& Object)
 	case 3:
 		PowerUps.push_back(PowerUp(PAD_SIZE_INCREASE, 0.0f, glm::vec3(1.0f, 0.6f, 0.4f), Object.Position, ResourceManager::GetTexture(("increase"))));
 		break;
-	default:
-		break;
-	}
-	//Éú³ÉÎŞÒæµÀ¾ß
-	random = rand() % 15;
-	switch (random)
-	{
-	case 0:
+	//ç”Ÿæˆæ— ç›Šé“å…·
+	case 4:
 		PowerUps.push_back(PowerUp(CHAOS, 15.0f, glm::vec3(1.0f, 0.3f, 0.3f), Object.Position, ResourceManager::GetTexture("chaos")));
 		break;
-	case 1:
+	case 5:
 		PowerUps.push_back(PowerUp(CONFUSE, 15.0f, glm::vec3(0.9f, 0.25f, 0.25f), Object.Position, ResourceManager::GetTexture("confuse")));
 		break;
 	default:
@@ -369,8 +380,8 @@ void Game::UpdatePowerUps(GLfloat dt)
 		powerUp.Position += powerUp.Velocity * dt;
 		if (powerUp.Activated) {
 			powerUp.Duration -= dt;
-			//³ÖĞøÊ±¼ä½áÊøÍ£ÓÃĞ§¹û
-			//Èç¹ûÓĞÍ¬ÀàµÀ¾ßÔÚÔËĞĞ¾Í²»ĞèÒªÍ£ÓÃ
+			//æŒç»­æ—¶é—´ç»“æŸåœç”¨æ•ˆæœ
+			//å¦‚æœæœ‰åŒç±»é“å…·åœ¨è¿è¡Œå°±ä¸éœ€è¦åœç”¨
 			if (powerUp.Duration <= 0.0f) {
 				powerUp.Activated = GL_FALSE;
 				switch (powerUp.Type)
@@ -400,7 +411,7 @@ void Game::UpdatePowerUps(GLfloat dt)
 			}
 		}
 	}
-	//ÒÆ³ıÒÑ¾­±»Ïú»ÙÇÒÃ»ÓĞÔÚ»î¶¯µÄµÀ¾ß
+	//ç§»é™¤å·²ç»è¢«é”€æ¯ä¸”æ²¡æœ‰åœ¨æ´»åŠ¨çš„é“å…·
 	PowerUps.erase(std::remove_if(PowerUps.begin(), PowerUps.end(),
 		[](const PowerUp& powerUp) { return powerUp.Destroyed && !powerUp.Activated; }
 	), PowerUps.end());
@@ -425,7 +436,7 @@ void Game::ActivatePowerUp(PowerUp& powerUp)
 		Player->Size.x += 50;
 		break;
 	case CHAOS:
-		//Ö»ÓĞÎ´¼¤»îÊ±ÉúĞ§
+		//åªæœ‰æœªæ¿€æ´»æ—¶ç”Ÿæ•ˆ
 		if (!Effects->Chaos)
 			Effects->Chaos = GL_TRUE;
 	case CONFUSE:
