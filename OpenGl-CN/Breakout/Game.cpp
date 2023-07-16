@@ -143,16 +143,30 @@ void Game::ProccessInput(GLfloat dt)
 			Ball->Stuck = GL_FALSE;
 		}
 	}
+	if (State == GAME_WIN) {
+		if (Keys[GLFW_KEY_ENTER] && !KeysProcessed[GLFW_KEY_ENTER]) {
+			KeysProcessed[GLFW_KEY_ENTER] = GL_TRUE;
+			State = GAME_ACTIVE;
+			ResetLevel();
+			ResetPlayer();
+			Ball->Reset(glm::vec2(Player->Position + glm::vec2(PLAYER_SIZE.x / 2 - Ball->Radius, -Ball->Radius * 2)), BALL_VELOCITY);
+			level = (level + 1) % 4;
+		}
+	}
 }
 
 void Game::Update(GLfloat dt)
 {
+	//判断游戏胜利
+	if (State == GAME_ACTIVE && levels[level].IsCompleted()) {
+		State = GAME_WIN;
+	}
 	//更新球的位置
 	Ball->Move(dt, Width);
 	//检测碰撞
 	DoCollisions();
 	//检测球碰撞底部边界死亡
-	if (Ball->Position.y >= Height) {
+	if (Ball->Position.y >= Height && State != GAME_WIN) {
 		Life--;
 		if (Life == 0) {
 			ResetLevel();
@@ -172,36 +186,40 @@ void Game::Update(GLfloat dt)
 
 void Game::Render()
 {
-	if (State == GAME_ACTIVE || State == GAME_MENU) {
-		Effects->BeginRender();
-		//绘制背景
-		Renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f, 0.0f), glm::vec2(Width, Height), 0.0f);
-		//绘制关卡
-		levels[level].Draw(*Renderer);
-		//绘制角色挡板
-		Player->Draw(*Renderer);
-		//绘制粒子
-		Particles->Draw();
-		//绘制球
-		Ball->Draw(*Renderer);
-		//绘制道具
-		for (auto powerUp : PowerUps)
-			if (!powerUp.Destroyed)
-				powerUp.Draw(*Renderer);
-		//绘制文本
-		wchar_t text[20];
-		swprintf_s(text, L"生命：%d", Life);
-		Text->RenderText(text, 5.0f, 5.0f, 1.0f);
-		Effects->EndRender();
-		Effects->Render(glfwGetTime());
-	}
+	Effects->BeginRender();
+	//绘制背景
+	Renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f, 0.0f), glm::vec2(Width, Height), 0.0f);
+	//绘制关卡
+	levels[level].Draw(*Renderer);
+	//绘制角色挡板
+	Player->Draw(*Renderer);
+	//绘制粒子
+	Particles->Draw();
+	//绘制球
+	Ball->Draw(*Renderer);
+	//绘制道具
+	for (auto powerUp : PowerUps)
+		if (!powerUp.Destroyed)
+			powerUp.Draw(*Renderer);
+	//绘制文本
+	wchar_t text[20];
+	swprintf_s(text, L"生命：%d", Life);
+	Text->RenderText(text, 5.0f, 5.0f, 1.0f);
 	if (State == GAME_MENU) {
-		Text->RenderText(L"按 回车 开始游戏", 300.0f, Height / 2, 1.0f);
+		Text->RenderText(L"按 ENTER 开始游戏", 300.0f, Height / 2, 1.0f);
 		wchar_t text[20];
 		swprintf_s(text, L"关卡%d", level + 1);
-		Text->RenderText(text, 350.0f, Height / 2 + 20.0f, 1.0f);
+		Text->RenderText(text, 360.0f, Height / 2 + 20.0f, 1.0f);
 		Text->RenderText(L"按 W 或 S 选择关卡", 290.0f, Height / 2 + 40.0f, 1.0f);
+		Text->RenderText(L"按 ESC 退出游戏", 310.0f, Height / 2 + 60.0f, 1.0f);
 	}
+	if (State == GAME_WIN) {
+		Text->RenderText(L"牛", 380.0f, Height / 2, 1.0f,glm::vec3(0.0f,1.0f,0.0f));
+		Text->RenderText(L"按 ENTER 重新游戏", 300.0f, Height / 2 + 20.0f, 1.0f, glm::vec3(1.0f,1.0f,0.0f));
+		Text->RenderText(L"按 ESC 退出游戏", 310.0f, Height / 2 + 40.0f, 1.0f, glm::vec3(1.0f, 1.0f, 0.0f));
+	}
+	Effects->EndRender();
+	Effects->Render(glfwGetTime());
 }
 
 void Game::DoCollisions()
@@ -224,7 +242,7 @@ void Game::DoCollisions()
 					Effects->Shake = GL_TRUE;
 				}
 				//如果球可以穿过就不需要碰撞处理
-				if (Ball->PassThrough) continue;
+				if (Ball->PassThrough && !box.IsSolid) continue;
 				//碰撞处理
 				Direction dir = std::get<1>(collision);
 				glm::vec2 diff_vector = std::get<2>(collision);

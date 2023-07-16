@@ -15,7 +15,7 @@
 enum GameState {
 	GAME_ACTIVE,
 	GAME_MENU,
-	GMAE_WIN
+	GAME_WIN,
 };
 
 enum Direction {
@@ -58,7 +58,7 @@ public:
 	//获得碰撞发生在相对于球的哪个方向
 	Direction VectorDirection(glm::vec2 target);
 
-	//重新设置角色喝关卡
+	//重新设置角色和关卡
 	void ResetLevel();
 	void ResetPlayer();
 
