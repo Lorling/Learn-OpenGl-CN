@@ -68,14 +68,15 @@ int main()
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     //如果用户按下esc键，将窗口的WindowShouldClose，既关闭窗口
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
+        glfwSetWindowShouldClose(window, GL_TRUE);
     }
     if (key >= 0 && key < 1024) {
         if (action == GLFW_PRESS) {//按下
-            BreakOut.Keys[key] = true;
+            BreakOut.Keys[key] = GL_TRUE;
         }
         else if (action == GLFW_RELEASE) {
-            BreakOut.Keys[key] = false;
+            BreakOut.Keys[key] = GL_FALSE;
+            BreakOut.KeysProcessed[key] = GL_FALSE;
         }
     }
 }

@@ -25,7 +25,7 @@ TextRenderer* Text;
 GLfloat ShakeTime = 0.0f;
 
 Game::Game(GLfloat width, GLfloat height) :
-	State(GAME_ACTIVE), Keys(), Width(width), Height(height)
+	State(GAME_MENU), Keys(), Width(width), Height(height)
 {
 }
 
@@ -72,9 +72,9 @@ void Game::Init()
 	//加载关卡
 	GameLevel one, two, three, four;
 	one.Load("res/levels/one.txt", Width, Height * 0.5f);
-	two.Load("res/levels/one.txt", Width, Height * 0.5f);
-	three.Load("res/levels/one.txt", Width, Height * 0.5f);
-	four.Load("res/levels/one.txt", Width, Height * 0.5f);
+	two.Load("res/levels/two.txt", Width, Height * 0.5f);
+	three.Load("res/levels/three.txt", Width, Height * 0.5f);
+	four.Load("res/levels/four.txt", Width, Height * 0.5f);
 	levels.push_back(one);
 	levels.push_back(two);
 	levels.push_back(three);
@@ -99,6 +99,22 @@ void Game::Init()
 
 void Game::ProccessInput(GLfloat dt)
 {
+	//在菜单界面进行关卡选择
+	if (State == GAME_MENU) {
+		if (Keys[GLFW_KEY_ENTER])
+			State = GAME_ACTIVE;
+		if (Keys[GLFW_KEY_W] && !KeysProcessed[GLFW_KEY_W]) {
+			level = (level + 1) % 4;
+			KeysProcessed[GLFW_KEY_W] = GL_TRUE;
+		}
+		if (Keys[GLFW_KEY_S] && !KeysProcessed[GLFW_KEY_S]) {
+			if (level > 0)
+				level--;
+			else level = 3;
+			KeysProcessed[GLFW_KEY_S] = GL_TRUE;
+		}
+			
+	}
 	if (State == GAME_ACTIVE) {
 		GLfloat velocity = PLAYER_VELOCITY * dt;
 		//移动挡板，并且让球跟着挡板移动
@@ -156,7 +172,7 @@ void Game::Update(GLfloat dt)
 
 void Game::Render()
 {
-	if (State == GAME_ACTIVE) {
+	if (State == GAME_ACTIVE || State == GAME_MENU) {
 		Effects->BeginRender();
 		//绘制背景
 		Renderer->DrawSprite(ResourceManager::GetTexture("background"), glm::vec2(0.0f, 0.0f), glm::vec2(Width, Height), 0.0f);
@@ -178,6 +194,13 @@ void Game::Render()
 		Text->RenderText(text, 5.0f, 5.0f, 1.0f);
 		Effects->EndRender();
 		Effects->Render(glfwGetTime());
+	}
+	if (State == GAME_MENU) {
+		Text->RenderText(L"按 回车 开始游戏", 300.0f, Height / 2, 1.0f);
+		wchar_t text[20];
+		swprintf_s(text, L"关卡%d", level + 1);
+		Text->RenderText(text, 350.0f, Height / 2 + 20.0f, 1.0f);
+		Text->RenderText(L"按 W 或 S 选择关卡", 290.0f, Height / 2 + 40.0f, 1.0f);
 	}
 }
 

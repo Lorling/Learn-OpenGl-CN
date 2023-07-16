@@ -31,6 +31,8 @@ class Game {
 public:
 	GameState State;
 	GLboolean Keys[1024];
+	//村粗已经被处理过的按键
+	GLboolean KeysProcessed[1024];
 	GLfloat Width, Height;
 	std::vector<GameLevel> levels;
 	std::vector<PowerUp> PowerUps;
