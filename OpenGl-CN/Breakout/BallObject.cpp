@@ -5,8 +5,8 @@ BallObject::BallObject() :
 {
 }
 
-BallObject::BallObject(glm::vec2 pos, GLfloat radius, glm::vec2 velocity, Texture2D sprite) :
-	GameObject(pos,glm::vec2(radius * 2,radius * 2),sprite,glm::vec3(1.0f),velocity), Radius(radius), Stuck(GL_TRUE), Sticky(GL_FALSE), PassThrough(GL_FALSE)
+BallObject::BallObject(glm::vec2 pos, GLfloat radius, glm::vec2 velocity, Texture2D sprite, GLboolean stuck) :
+	GameObject(pos,glm::vec2(radius * 2,radius * 2),sprite,glm::vec3(1.0f),velocity), Radius(radius), Stuck(stuck), Sticky(GL_FALSE), PassThrough(GL_FALSE)
 {
 }
 

@@ -37,6 +37,8 @@ public:
 	GLfloat Width, Height;
 	std::vector<GameLevel> levels;
 	std::vector<PowerUp> PowerUps;
+	std::vector<BallObject> Balls;
+	std::vector<ParticleGenerator> Particles;
 	GLuint level;
 	GLuint Life = 3;
 	GLuint FailText;
@@ -51,7 +53,7 @@ public:
 	void Render();
 
 	//Åö×²´¦Àí
-	void DoCollisions();
+	void DoCollisions(BallObject& ball);
 
 	//Åö×²¼ì²â
 	GLboolean CheckCollision(GameObject& one, GameObject& two);

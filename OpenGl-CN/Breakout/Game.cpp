@@ -17,7 +17,7 @@ const GLfloat BALL_RADIUS = 12.5f;
 SpriteRenderer* Renderer;
 GameObject* Player;
 BallObject* Ball;
-ParticleGenerator* Particles;
+ParticleGenerator* Particle;
 PostProcessor* Effects;
 irrklang::ISoundEngine* SoundEngine = irrklang::createIrrKlangDevice();
 TextRenderer* Text;
@@ -35,8 +35,9 @@ Game::~Game()
 	delete Renderer;
 	delete Player;
 	delete Ball;
-	delete Particles;
+	delete Particle;
 	delete Effects;
+	delete Text;
 }
 
 void Game::Init()
@@ -86,8 +87,11 @@ void Game::Init()
 	//初始化球
 	glm::vec2 ballPos = playerPos + glm::vec2(PLAYER_SIZE.x / 2 - BALL_RADIUS, -2 * BALL_RADIUS);//球左上角的位置
 	Ball = new BallObject(ballPos, BALL_RADIUS, BALL_VELOCITY, ResourceManager::GetTexture("ball"));
+	Balls.push_back(*Ball);
 
-	Particles = new ParticleGenerator(ResourceManager::GetShader("particle"), ResourceManager::GetTexture("particle"), 500);
+	Particle = new ParticleGenerator(ResourceManager::GetShader("particle"), ResourceManager::GetTexture("particle"), 500);
+	for (GLuint i = 0;i < 100;i++)
+		Particles.push_back(*Particle);
 
 	Renderer = new SpriteRenderer(ResourceManager::GetShader("sprite"));
 
@@ -121,26 +125,27 @@ void Game::ProccessInput(GLfloat dt)
 		if (Keys[GLFW_KEY_A]) {
 			if (Player->Position.x >= 0) {
 				Player->Position.x -= velocity;
-				if (Ball->Stuck) {
-					if (Ball->Position.x >= 0)
-						Ball->Position.x -= velocity;
-				}
+				for(auto &ball : Balls)
+					if (ball.Stuck) 
+						if (ball.Position.x >= 0)
+							ball.Position.x -= velocity;
 			}
 			if (Player->Position.x < 0) Player->Position.x = 0;
 		}
 		if (Keys[GLFW_KEY_D]) {
 			if (Player->Position.x <= Width - Player->Size.x) {
 				Player->Position.x += velocity;
-				if (Ball->Stuck)
-					if (Ball->Position.x <= Width - Ball->Radius * 2) {
-						Ball->Position.x += velocity;
-					}
+				for(auto& ball : Balls)
+					if (ball.Stuck)
+						if (ball.Position.x <= Width - ball.Radius * 2) 
+							ball.Position.x += velocity;
 			}
 			if (Player->Position.x > Width - Player->Size.x) Player->Position.x = Width - Player->Size.x;
 		}
 		//如果输入空格则释放球
 		if (Keys[GLFW_KEY_SPACE]) {
-			Ball->Stuck = GL_FALSE;
+			for(auto& ball : Balls)
+				ball.Stuck = GL_FALSE;
 		}
 	}
 	if (State == GAME_WIN) {
@@ -149,7 +154,6 @@ void Game::ProccessInput(GLfloat dt)
 			State = GAME_ACTIVE;
 			ResetLevel();
 			ResetPlayer();
-			Ball->Reset(glm::vec2(Player->Position + glm::vec2(PLAYER_SIZE.x / 2 - Ball->Radius, -Ball->Radius * 2)), BALL_VELOCITY);
 			level = (level + 1) % 4;
 		}
 	}
@@ -159,7 +163,6 @@ void Game::ProccessInput(GLfloat dt)
 			State = GAME_ACTIVE;
 			ResetLevel();
 			ResetPlayer();
-			Ball->Reset(glm::vec2(Player->Position + glm::vec2(PLAYER_SIZE.x / 2 - Ball->Radius, -Ball->Radius * 2)), BALL_VELOCITY);
 		}
 	}
 }
@@ -171,20 +174,24 @@ void Game::Update(GLfloat dt)
 		State = GAME_WIN;
 	}
 	//更新球的位置
-	Ball->Move(dt, Width);
-	//检测碰撞
-	DoCollisions();
-	//检测球碰撞底部边界死亡
-	if (Ball->Position.y >= Height && State != GAME_WIN) {
-		Life--;
-		if (Life == 0) {
-			State = GAME_FAIL;
-			FailText = rand() % 5;
-		}
-		ResetPlayer();
+	for (auto& ball : Balls) {
+		ball.Move(dt, Width);
+		//检测碰撞
+		DoCollisions(ball);
+	}
+	//移除触碰边界死亡的球
+	if (State == GAME_ACTIVE) {
+		static GLuint hei = Height;
+		Balls.erase(std::remove_if(Balls.begin(), Balls.end(),
+			[](const BallObject& ball) { return ball.Position.y >= hei; }
+		), Balls.end());
+	}
+	if (Balls.size() == 0 && State == GAME_ACTIVE) {
+		State = GAME_FAIL;
 	}
 	//粒子更新，并且产生的粒子偏向球中心
-	Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2));
+	for(GLuint i = 0;i<Balls.size();i++)
+		Particles[i].Update(dt, Balls[i], 2, glm::vec2(Balls[i].Radius / 2));
 	//更新shaketime
 	if (ShakeTime > 0.0f) {
 		ShakeTime -= dt;
@@ -204,9 +211,11 @@ void Game::Render()
 	//绘制角色挡板
 	Player->Draw(*Renderer);
 	//绘制粒子
-	Particles->Draw();
+	for(GLuint i = 0;i<Balls.size();i++)
+		Particles[i].Draw();
 	//绘制球
-	Ball->Draw(*Renderer);
+	for(auto& ball : Balls)
+		ball.Draw(*Renderer);
 	//绘制道具
 	for (auto powerUp : PowerUps)
 		if (!powerUp.Destroyed)
@@ -257,12 +266,12 @@ void Game::Render()
 	Effects->Render(glfwGetTime());
 }
 
-void Game::DoCollisions()
+void Game::DoCollisions(BallObject& ball)
 {
 	//球与砖块的碰撞
 	for (GameObject& box : levels[level].Bricks) {
 		if (!box.Destroyed) {
-			Collision collision = CheckCollision(*Ball, box);
+			Collision collision = CheckCollision(ball, box);
 			if (std::get<0>(collision)) {//如果碰撞到的话
 				//如果砖块不是实心就销毁
 				if (!box.IsSolid) {
@@ -277,53 +286,53 @@ void Game::DoCollisions()
 					Effects->Shake = GL_TRUE;
 				}
 				//如果球可以穿过就不需要碰撞处理
-				if (Ball->PassThrough && !box.IsSolid) continue;
+				if (ball.PassThrough && !box.IsSolid) continue;
 				//碰撞处理
 				Direction dir = std::get<1>(collision);
 				glm::vec2 diff_vector = std::get<2>(collision);
 				//水平碰撞
 				if (dir == LEFT || dir == RIGHT) {
 					//反转水平速度
-					Ball->Velocity.x = -Ball->Velocity.x;
+					ball.Velocity.x = -ball.Velocity.x;
 					//重定位，避免球挤在砖块内
-					GLfloat penetration = Ball->Radius - glm::length(diff_vector);
+					GLfloat penetration = ball.Radius - glm::length(diff_vector);
 					if (dir == LEFT)
-						Ball->Position.x += penetration;
+						ball.Position.x += penetration;
 					else
-						Ball->Position.x -= penetration;
+						ball.Position.x -= penetration;
 				}
 				//垂直碰撞
 				else {
-					Ball->Velocity.y = -Ball->Velocity.y;
-					GLfloat penetration = Ball->Radius - glm::length(diff_vector);
+					ball.Velocity.y = -ball.Velocity.y;
+					GLfloat penetration = ball.Radius - glm::length(diff_vector);
 					if (dir == UP)
-						Ball->Position.y += penetration;
+						ball.Position.y += penetration;
 					else
-						Ball->Position.y -= penetration;
+						ball.Position.y -= penetration;
 				}
 			}
 		}
 	}
 	//球与角色挡板的碰撞
-	Collision collision = CheckCollision(*Ball, *Player);
+	Collision collision = CheckCollision(ball, *Player);
 	//球没有固定并且发生碰撞
-	if (!Ball->Stuck && std::get<0>(collision)) {
+	if (!ball.Stuck && std::get<0>(collision)) {
 		//根据道具更新状态
-		Ball->Stuck = Ball->Sticky;
-		if (Ball->Stuck) Ball->Position.y = Height - Player->Size.y - Ball->Radius * 2;
-		if(!Ball->Stuck) SoundEngine->play2D("res/audio/bleep.wav", GL_FALSE);
+		ball.Stuck = ball.Sticky;
+		if (ball.Stuck) ball.Position.y = Height - Player->Size.y - ball.Radius * 2;
+		if (!ball.Stuck) SoundEngine->play2D("res/audio/bleep.wav", GL_FALSE);
 		GLfloat centerBoard = Player->Position.x + Player->Size.x / 2;
 		//球的圆心距挡板中心的水平距离
-		GLfloat distence = (Ball->Position.x + Ball->Radius) - centerBoard;
+		GLfloat distence = (ball.Position.x + ball.Radius) - centerBoard;
 		GLfloat percentage = distence / (Player->Size.x / 2);
 
 		GLfloat strength = 2.0f;
-		glm::vec2 oldVelocity = Ball->Velocity;
-		Ball->Velocity.x = BALL_VELOCITY.x * percentage * strength;
+		glm::vec2 oldVelocity = ball.Velocity;
+		ball.Velocity.x = BALL_VELOCITY.x * percentage * strength;
 		//因为球碰撞挡板之后y轴的速度必然是向上的
-		Ball->Velocity.y = -std::abs(Ball->Velocity.y);
+		ball.Velocity.y = -std::abs(ball.Velocity.y);
 		//保证球的速度矢量不变
-		Ball->Velocity = glm::normalize(Ball->Velocity) * glm::length(oldVelocity);
+		ball.Velocity = glm::normalize(ball.Velocity) * glm::length(oldVelocity);
 	}
 	//角色挡板与道具的碰撞
 	for (auto& powerUp : PowerUps) {
@@ -412,7 +421,8 @@ void Game::ResetPlayer()
 	Player->Size = PLAYER_SIZE;
 	Player->Position = glm::vec2(Width / 2 - PLAYER_SIZE.x / 2, Height - PLAYER_SIZE.y);
 	Player->Color = glm::vec3(1.0f);
-	Ball->Reset(glm::vec2(Player->Position + glm::vec2(PLAYER_SIZE.x / 2 - Ball->Radius, -Ball->Radius * 2)),BALL_VELOCITY);
+	Balls.clear();
+	Balls.push_back(*Ball);
 
 	//清理道具
 	PowerUps.clear();
@@ -438,11 +448,14 @@ void Game::SpawnPowerUps(GameObject& Object)
 	case 3:
 		PowerUps.push_back(PowerUp(PAD_SIZE_INCREASE, 0.0f, glm::vec3(1.0f, 0.6f, 0.4f), Object.Position, ResourceManager::GetTexture(("increase"))));
 		break;
-	//生成无益道具
 	case 4:
+		PowerUps.push_back(PowerUp(SEPARATION, 0.0f, glm::vec3(0.0f, 1.0f, 1.0f), Object.Position, ResourceManager::GetTexture("confuse")));
+		break;
+	//生成无益道具
+	case 5:
 		PowerUps.push_back(PowerUp(CHAOS, 15.0f, glm::vec3(1.0f, 0.3f, 0.3f), Object.Position, ResourceManager::GetTexture("chaos")));
 		break;
-	case 5:
+	case 6:
 		PowerUps.push_back(PowerUp(CONFUSE, 15.0f, glm::vec3(0.9f, 0.25f, 0.25f), Object.Position, ResourceManager::GetTexture("confuse")));
 		break;
 	default:
@@ -464,14 +477,17 @@ void Game::UpdatePowerUps(GLfloat dt)
 				{
 				case STICKY:
 					if (!IsOtherPowerActive(PowerUps, STICKY)) {
-						Ball->Sticky = GL_FALSE;
+						for(auto& ball : Balls)
+							ball.Sticky = GL_FALSE;
 						Player->Color = glm::vec3(1.0f);
 					}
 					break;
 				case PASS_THROUGH:
 					if (!IsOtherPowerActive(PowerUps, PASS_THROUGH)) {
-						Ball->PassThrough = GL_FALSE;
-						Ball->Color = glm::vec3(1.0f);
+						for (auto& ball : Balls) {
+							ball.PassThrough = GL_FALSE;
+							ball.Color = glm::vec3(1.0f);
+						}
 					}
 					break;
 				case CONFUSE:
@@ -498,18 +514,31 @@ void Game::ActivatePowerUp(PowerUp& powerUp)
 	switch (powerUp.Type)
 	{
 	case SPEED:
-		Ball->Velocity *= 1.2f;
+		for(auto& ball : Balls)
+			ball.Velocity *= 1.2f;
 		break;
 	case STICKY:
-		Ball->Sticky = GL_TRUE;
+		for (auto& ball : Balls)
+			ball.Sticky = GL_TRUE;
 		Player->Color = glm::vec3(1.0f, 0.5, 1.0f);
 		break;
 	case PASS_THROUGH:
-		Ball->PassThrough = GL_TRUE;
-		Ball->Color = glm::vec3(1.0f, 0.5f, 0.5f);
+		for (auto& ball : Balls) {
+			ball.PassThrough = GL_TRUE;
+			ball.Color = glm::vec3(1.0f, 0.5f, 0.5f);
+		}
 		break;
 	case PAD_SIZE_INCREASE:
 		Player->Size.x += 50;
+		break;
+	case SEPARATION:
+	{
+		GLuint random = rand() % Balls.size();
+		auto ball = Balls[random];
+		GLfloat vx = rand();
+		GLfloat vy = -std::abs(rand());
+		Balls.push_back(BallObject(ball.Position, ball.Radius, glm::normalize(glm::vec2(vx, vy)) * glm::length(ball.Velocity), ResourceManager::GetTexture("ball"), ball.Stuck));
+	}
 		break;
 	case CHAOS:
 		//只有未激活时生效

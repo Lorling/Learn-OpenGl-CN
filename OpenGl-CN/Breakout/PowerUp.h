@@ -13,7 +13,8 @@ enum PROPTYPE {
 	PASS_THROUGH,
 	PAD_SIZE_INCREASE,
 	CONFUSE,
-	CHAOS
+	CHAOS,
+	SEPARATION,
 };
 
 class PowerUp : public GameObject
